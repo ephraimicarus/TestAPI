@@ -363,3 +363,5 @@ MigrationBackup/
 FodyWeavers.xsd
 /TestAPI/appsettings.json
 /TestAPI/appsettings.Development.json
+/MauiApp1/Services/ClientApiService.cs
+/MauiApp1/Services/IClientApiService.cs
