@@ -9,11 +9,11 @@ using TestAPI.Data;
 
 #nullable disable
 
-namespace TestAPI.Migrations
+namespace BaseApi.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20240606170943_init")]
-    partial class init
+    [Migration("20240620182644_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -66,38 +66,6 @@ namespace TestAPI.Migrations
                     b.ToTable("Customers");
                 });
 
-            modelBuilder.Entity("TestAPI.Models.Delivery", b =>
-                {
-                    b.Property<int>("DeliveryId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DeliveryId"));
-
-                    b.Property<int?>("CustomerId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("DateDue")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("ItemId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("TransactionDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("DeliveryId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("ItemId");
-
-                    b.ToTable("Deliveries");
-                });
-
             modelBuilder.Entity("TestAPI.Models.Inventory", b =>
                 {
                     b.Property<int>("CustomerId")
@@ -140,48 +108,80 @@ namespace TestAPI.Migrations
                     b.ToTable("Items");
                 });
 
-            modelBuilder.Entity("TestAPI.Models.Return", b =>
+            modelBuilder.Entity("TestAPI.Models.StockDelivery", b =>
                 {
-                    b.Property<int>("ReturnId")
+                    b.Property<int>("StockDeliveryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReturnId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StockDeliveryId"));
 
-                    b.Property<int?>("CustomerId")
+                    b.Property<DateTime>("DateDue")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("InventoryCustomerId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ItemId")
+                    b.Property<int?>("InventoryItemId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Quantity")
+                    b.Property<int>("QuantityDelivered")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuantityToReturn")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("StockDeliveryId");
+
+                    b.HasIndex("InventoryCustomerId", "InventoryItemId");
+
+                    b.ToTable("Deliveries");
+                });
+
+            modelBuilder.Entity("TestAPI.Models.StockJournal", b =>
+                {
+                    b.Property<int>("StockJournalId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StockJournalId"));
+
+                    b.Property<string>("Category")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TransactionTypeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("StockJournalId");
+
+                    b.ToTable("StockJournals");
+                });
+
+            modelBuilder.Entity("TestAPI.Models.StockReturn", b =>
+                {
+                    b.Property<int>("StockReturnId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StockReturnId"));
+
+                    b.Property<int?>("DeliveryStockDeliveryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuantityReturned")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("ReturnDate")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("ReturnId");
+                    b.HasKey("StockReturnId");
 
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("ItemId");
+                    b.HasIndex("DeliveryStockDeliveryId");
 
                     b.ToTable("Returns");
-                });
-
-            modelBuilder.Entity("TestAPI.Models.Delivery", b =>
-                {
-                    b.HasOne("TestAPI.Models.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId");
-
-                    b.HasOne("TestAPI.Models.Item", "Item")
-                        .WithMany()
-                        .HasForeignKey("ItemId");
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("Item");
                 });
 
             modelBuilder.Entity("TestAPI.Models.Inventory", b =>
@@ -203,19 +203,22 @@ namespace TestAPI.Migrations
                     b.Navigation("Item");
                 });
 
-            modelBuilder.Entity("TestAPI.Models.Return", b =>
+            modelBuilder.Entity("TestAPI.Models.StockDelivery", b =>
                 {
-                    b.HasOne("TestAPI.Models.Customer", "Customer")
+                    b.HasOne("TestAPI.Models.Inventory", "Inventory")
                         .WithMany()
-                        .HasForeignKey("CustomerId");
+                        .HasForeignKey("InventoryCustomerId", "InventoryItemId");
 
-                    b.HasOne("TestAPI.Models.Item", "Item")
+                    b.Navigation("Inventory");
+                });
+
+            modelBuilder.Entity("TestAPI.Models.StockReturn", b =>
+                {
+                    b.HasOne("TestAPI.Models.StockDelivery", "Delivery")
                         .WithMany()
-                        .HasForeignKey("ItemId");
+                        .HasForeignKey("DeliveryStockDeliveryId");
 
-                    b.Navigation("Customer");
-
-                    b.Navigation("Item");
+                    b.Navigation("Delivery");
                 });
 #pragma warning restore 612, 618
         }

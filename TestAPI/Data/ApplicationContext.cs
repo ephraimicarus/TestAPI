@@ -11,8 +11,9 @@ namespace TestAPI.Data
 		public DbSet<Customer> Customers { get; set; }
 		public DbSet<Item> Items { get; set; }
 		public DbSet<Inventory> Inventories { get; set; }
-		public DbSet<Delivery> Deliveries { get; set; }
-		public DbSet<Return> Returns { get; set; }
+		public DbSet<StockDelivery> Deliveries { get; set; }
+		public DbSet<StockReturn> Returns { get; set; }
+		public DbSet<StockJournal> StockJournals { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{

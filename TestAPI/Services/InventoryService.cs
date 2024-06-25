@@ -1,4 +1,5 @@
 ﻿using BaseApi.Interfaces;
+using BaseApi.Utility;
 using Microsoft.EntityFrameworkCore;
 using TestAPI.Data;
 using TestAPI.DTOs;
@@ -35,26 +36,28 @@ namespace TestAPI.Services
 			return inventoryList;
 		}
 
-		public async Task<Inventory> UpdateInventory(int inventoryId, int quantity)
+		public async Task<Inventory> UpdateInventory(string category, int inventoryId, int quantity)
 		{
+			if (category == TransactionCategory.Return.ToString())
+				quantity *= -1;
 			var inventories = await _context.Inventories
 				.SingleOrDefaultAsync(inv => inv.InventoryId == inventoryId);
 
 			if (inventories != null)
 			{
 				if ((inventories.Quantity + quantity) < 0)
-					return inventories;
+					return inventories;//TODO: Error handling for case
 				inventories.Quantity += quantity;
 				await _context.SaveChangesAsync();
 				return inventories;
 			}
 			else
 			{
-				return null;
+				return null;//TODO: All null reference error/exception handling
 			}
 		}
 
-		public async Task<Item> AddToInventory(int itemId)
+		public async Task<Item> ExpandInventory(int itemId)
 		{
 			var item = await _context.Items.SingleOrDefaultAsync(i => i.ItemId == itemId);
 			if (item == null)

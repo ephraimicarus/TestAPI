@@ -1,4 +1,5 @@
 using BaseApi.Interfaces;
+using BaseApi.Services;
 using Microsoft.EntityFrameworkCore;
 using TestAPI.Data;
 using TestAPI.Services;
@@ -16,7 +17,9 @@ builder.Services.AddDbContext<ApplicationContext>(options => options.UseSqlServe
 builder.Services.AddTransient<ICustomerService, CustomerService>();
 builder.Services.AddTransient<IItemService, ItemService>();
 builder.Services.AddTransient<IInventoryService, InventoryService>();
-builder.Services.AddTransient<IDeliveryService, DeliveryService>();
+builder.Services.AddTransient<IStockDeliveryService, StockDeliveryService>();
+builder.Services.AddTransient<IStockReturnService, StockReturnService>();
+builder.Services.AddTransient<ITransactionService, TransactionService>();
 
 var app = builder.Build();
 

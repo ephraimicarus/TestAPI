@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace TestAPI.Migrations
+namespace BaseApi.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -43,30 +43,17 @@ namespace TestAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Deliveries",
+                name: "StockJournals",
                 columns: table => new
                 {
-                    DeliveryId = table.Column<int>(type: "int", nullable: false)
+                    StockJournalId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CustomerId = table.Column<int>(type: "int", nullable: true),
-                    ItemId = table.Column<int>(type: "int", nullable: true),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    TransactionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DateDue = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Category = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TransactionTypeId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Deliveries", x => x.DeliveryId);
-                    table.ForeignKey(
-                        name: "FK_Deliveries_Customers_CustomerId",
-                        column: x => x.CustomerId,
-                        principalTable: "Customers",
-                        principalColumn: "CustomerId");
-                    table.ForeignKey(
-                        name: "FK_Deliveries_Items_ItemId",
-                        column: x => x.ItemId,
-                        principalTable: "Items",
-                        principalColumn: "ItemId");
+                    table.PrimaryKey("PK_StockJournals", x => x.StockJournalId);
                 });
 
             migrationBuilder.CreateTable(
@@ -97,29 +84,46 @@ namespace TestAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Deliveries",
+                columns: table => new
+                {
+                    StockDeliveryId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    InventoryCustomerId = table.Column<int>(type: "int", nullable: true),
+                    InventoryItemId = table.Column<int>(type: "int", nullable: true),
+                    QuantityDelivered = table.Column<int>(type: "int", nullable: false),
+                    QuantityToReturn = table.Column<int>(type: "int", nullable: false),
+                    TransactionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DateDue = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Deliveries", x => x.StockDeliveryId);
+                    table.ForeignKey(
+                        name: "FK_Deliveries_Inventories_InventoryCustomerId_InventoryItemId",
+                        columns: x => new { x.InventoryCustomerId, x.InventoryItemId },
+                        principalTable: "Inventories",
+                        principalColumns: new[] { "CustomerId", "ItemId" });
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Returns",
                 columns: table => new
                 {
-                    ReturnId = table.Column<int>(type: "int", nullable: false)
+                    StockReturnId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CustomerId = table.Column<int>(type: "int", nullable: true),
-                    ItemId = table.Column<int>(type: "int", nullable: true),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    DeliveryStockDeliveryId = table.Column<int>(type: "int", nullable: true),
+                    QuantityReturned = table.Column<int>(type: "int", nullable: false),
                     ReturnDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Returns", x => x.ReturnId);
+                    table.PrimaryKey("PK_Returns", x => x.StockReturnId);
                     table.ForeignKey(
-                        name: "FK_Returns_Customers_CustomerId",
-                        column: x => x.CustomerId,
-                        principalTable: "Customers",
-                        principalColumn: "CustomerId");
-                    table.ForeignKey(
-                        name: "FK_Returns_Items_ItemId",
-                        column: x => x.ItemId,
-                        principalTable: "Items",
-                        principalColumn: "ItemId");
+                        name: "FK_Returns_Deliveries_DeliveryStockDeliveryId",
+                        column: x => x.DeliveryStockDeliveryId,
+                        principalTable: "Deliveries",
+                        principalColumn: "StockDeliveryId");
                 });
 
             migrationBuilder.CreateIndex(
@@ -129,14 +133,9 @@ namespace TestAPI.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Deliveries_CustomerId",
+                name: "IX_Deliveries_InventoryCustomerId_InventoryItemId",
                 table: "Deliveries",
-                column: "CustomerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Deliveries_ItemId",
-                table: "Deliveries",
-                column: "ItemId");
+                columns: new[] { "InventoryCustomerId", "InventoryItemId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Inventories_ItemId",
@@ -144,27 +143,25 @@ namespace TestAPI.Migrations
                 column: "ItemId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Returns_CustomerId",
+                name: "IX_Returns_DeliveryStockDeliveryId",
                 table: "Returns",
-                column: "CustomerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Returns_ItemId",
-                table: "Returns",
-                column: "ItemId");
+                column: "DeliveryStockDeliveryId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Returns");
+
+            migrationBuilder.DropTable(
+                name: "StockJournals");
+
+            migrationBuilder.DropTable(
                 name: "Deliveries");
 
             migrationBuilder.DropTable(
                 name: "Inventories");
-
-            migrationBuilder.DropTable(
-                name: "Returns");
 
             migrationBuilder.DropTable(
                 name: "Customers");

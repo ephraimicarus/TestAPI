@@ -5,7 +5,7 @@ using TestAPI.Models;
 
 namespace TestAPI.Controllers
 {
-    [Route("api/[controller]")]
+	[Route("api/[controller]")]
 	public class InventoryController : Controller
 	{
 		private readonly IInventoryService _inventoryService;
@@ -22,9 +22,9 @@ namespace TestAPI.Controllers
 		}
 
 		[HttpPut]
-		public async Task<ActionResult<Inventory>> UpdateInventory(int inventoryId,int quantity)
+		public async Task<ActionResult<Inventory>> UpdateInventory(string category, int inventoryId, int quantity)
 		{
-			var newInventory = await _inventoryService.UpdateInventory(inventoryId, quantity);
+			var newInventory = await _inventoryService.UpdateInventory(category, inventoryId, quantity);
 			return Ok(newInventory);
 		}
 	}

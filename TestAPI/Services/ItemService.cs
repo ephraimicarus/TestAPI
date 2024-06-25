@@ -25,7 +25,7 @@ namespace TestAPI.Services
 				};
 				_context.Add(itemCreated);
 				await _context.SaveChangesAsync();
-				await _inventoryService.AddToInventory(itemCreated.ItemId);
+				await _inventoryService.ExpandInventory(itemCreated.ItemId);
 				return itemCreated;
 			}
 			catch

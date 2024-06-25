@@ -3,14 +3,16 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TestAPI.Models
 {
-	public class Delivery
+	public class StockDelivery
 	{
 		[Key]
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-		public int DeliveryId { get; set; }
+		public int StockDeliveryId { get; set; }
         public Inventory? Inventory { get; set; }
-		public int OrderTotal { get; set; }
+        public int QuantityDelivered { get; set; }
+        public int QuantityToReturn { get; set; }
         public DateTime TransactionDate { get; set; } = DateTime.Now;
 		public DateTime DateDue { get; set; }
+
 	}
 }

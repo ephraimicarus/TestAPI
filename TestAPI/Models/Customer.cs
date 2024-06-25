@@ -20,6 +20,6 @@ namespace TestAPI.Models
         public string? Email { get; set; }
         [StringLength(20)]
         public string? Phone { get; set; }
-        public bool Overdue { get; set; }
+        public bool Overdue { get; set; } = false;
     }
 }
