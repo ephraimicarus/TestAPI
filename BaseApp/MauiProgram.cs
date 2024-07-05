@@ -25,14 +25,17 @@ namespace BaseApp
 			builder.Services.AddSingleton<CustomerPageViewModel>();
 			builder.Services.AddTransient<HttpClient>();
 			builder.Services.AddTransient<IClientApiService, ClientApiService>();
-			builder.Services.AddTransient<HomePage>(serviceProvider => new HomePage()
-			{
-				BindingContext = serviceProvider.GetRequiredService<HomePageViewModel>()
-			});
-			builder.Services.AddTransient<CustomerPage>(serviceProvider => new CustomerPage()
-			{
-				BindingContext = serviceProvider.GetRequiredService<CustomerPageViewModel>()
-			});
+			builder.Services.AddTransient<HomePage>();
+			builder.Services.AddTransient<CustomerPage>();
+
+			//	builder.Services.AddTransient<HomePage>(serviceProvider => new HomePage()
+			//{
+			//	BindingContext = serviceProvider.GetRequiredService<HomePageViewModel>()
+			//});
+			//builder.Services.AddTransient<CustomerPage>(serviceProvider => new CustomerPage()
+			//{
+			//	BindingContext = serviceProvider.GetRequiredService<CustomerPageViewModel>()
+			//});
 
 			return builder.Build();
 		}
