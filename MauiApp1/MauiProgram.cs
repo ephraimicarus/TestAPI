@@ -20,10 +20,8 @@ namespace MauiApp1
 			builder.Logging.AddDebug();
 #endif
 			//resolve httpClient
-			builder.Services.AddSingleton<HttpClient>();
-
+			builder.Services.AddScoped<HttpClient>();
 			builder.Services.AddTransient<IClientApiService, ClientApiService>();
-			builder.Services.AddTransient<MainPage>();
 
 			return builder.Build();
 		}

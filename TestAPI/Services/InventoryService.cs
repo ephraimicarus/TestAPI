@@ -19,7 +19,7 @@ namespace TestAPI.Services
 			var inventoryList = new List<Inventory>();
 			var itemsList = await _context.Items.ToListAsync();
 			if (itemsList.Count <= 0)
-				return null;
+				return inventoryList;
 
 			foreach (var item in itemsList)
 			{

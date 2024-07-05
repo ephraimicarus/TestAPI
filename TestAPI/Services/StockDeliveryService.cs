@@ -7,13 +7,13 @@ using TestAPI.Models;
 
 namespace TestAPI.Services
 {
-    public class StockDeliveryService : IStockDeliveryService
+	public class StockDeliveryService : IStockDeliveryService
 	{
 		private readonly ApplicationContext _context;
 		private readonly IInventoryService _inventoryService;
 		private readonly ITransactionService _transactionService;
-		public StockDeliveryService(ApplicationContext context, 
-			IInventoryService inventoryService, 
+		public StockDeliveryService(ApplicationContext context,
+			IInventoryService inventoryService,
 			ITransactionService transactionService)
 		{
 			_context = context;
@@ -23,8 +23,8 @@ namespace TestAPI.Services
 		public async Task<StockDelivery> CreateDeliveryAsync(TransactionDTO delivery)
 		{
 			var inventory = await _context.Inventories
-				.Include(c=>c.Customer)
-				.Include(i=>i.Item)
+				.Include(c => c.Customer)
+				.Include(i => i.Item)
 				.SingleOrDefaultAsync(i => i.InventoryId == delivery.InventoryId);
 			try
 			{
@@ -36,11 +36,15 @@ namespace TestAPI.Services
 					DateDue = delivery.TransactionDate.AddDays(7),
 				};
 				_context.Add(transactionCreated);
-				await _inventoryService.UpdateInventory(TransactionCategory.Delivery.ToString(), 
-					delivery.InventoryId, 
+				var updatedInventory = await _inventoryService.UpdateInventory(TransactionCategory.Delivery.ToString(),
+					delivery.InventoryId,
 					transactionCreated.QuantityDelivered);
-				await _transactionService.AddStockJournalRecord(TransactionCategory.Delivery.ToString(), 
+				if (updatedInventory == null)
+					return null;
+				var stockJournalRecordAdded = await _transactionService.AddStockJournalRecord(TransactionCategory.Delivery.ToString(),
 					transactionCreated.StockDeliveryId);
+				if (stockJournalRecordAdded == null)
+					return null;
 				await _context.SaveChangesAsync();
 				return transactionCreated;
 			}
@@ -49,11 +53,11 @@ namespace TestAPI.Services
 				throw;
 			}
 		}
-		
+
 		public async Task<StockDelivery> UpdateDeliveryAsync(int deliveryId, int quantity)
 		{
-			var deliveryToUpdate = await _context.Deliveries.SingleOrDefaultAsync(d=>d.StockDeliveryId == deliveryId);
-			if(deliveryToUpdate != null)
+			var deliveryToUpdate = await _context.Deliveries.SingleOrDefaultAsync(d => d.StockDeliveryId == deliveryId);
+			if (deliveryToUpdate != null)
 				deliveryToUpdate.QuantityToReturn -= quantity;
 			await _context.SaveChangesAsync();
 			return deliveryToUpdate!;
