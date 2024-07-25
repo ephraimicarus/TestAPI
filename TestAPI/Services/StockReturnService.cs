@@ -33,6 +33,8 @@ namespace BaseApi.Services
 					QuantityReturned = quantity,
 				};
 				_context.Add(transactionCreated);
+				if ((delivery!.QuantityToReturn-quantity)<0)
+					return null;
 				await _inventoryService.UpdateInventory(TransactionCategory.Return.ToString(), 
 					delivery!.Inventory!.InventoryId, 
 					transactionCreated.QuantityReturned);

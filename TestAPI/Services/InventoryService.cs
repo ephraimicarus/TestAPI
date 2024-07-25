@@ -40,16 +40,16 @@ namespace TestAPI.Services
 		{
 			if (category == TransactionCategory.Return.ToString())
 				quantity *= -1;
-			var inventories = await _context.Inventories
+			var inventory = await _context.Inventories
 				.SingleOrDefaultAsync(inv => inv.InventoryId == inventoryId);
 
-			if (inventories != null)
+			if (inventory != null)
 			{
-				if ((inventories.Quantity + quantity) < 0)
-					return inventories;//TODO: Error handling for case
-				inventories.Quantity += quantity;
+				if ((inventory.Quantity + quantity) < 0)
+					return inventory;//TODO: Error handling for case
+				inventory.Quantity += quantity;
 				await _context.SaveChangesAsync();
-				return inventories;
+				return inventory;
 			}
 			else
 			{
