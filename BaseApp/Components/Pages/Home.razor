@@ -1,0 +1,27 @@
+﻿@page "/"
+@using BaseApp.Interfaces
+@using BaseApp.Models
+@inject ICustomerService _customerService;
+
+<h1>Naslovna</h1>
+
+<MudTable Items="customersDueList">
+    <HeaderContent>
+        <MudTh>Ime</MudTh>
+        <MudTh>Oib</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Ime">@context.Name</MudTd>
+        <MudTd DataLabel="Količina">@context.Oib</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    private List<Customer> customersDueList = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var customers = await _customerService.GetAllCustomersAsync();
+        customersDueList = customers;
+    }
+}
