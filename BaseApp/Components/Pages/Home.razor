@@ -1,27 +1,105 @@
 ﻿@page "/"
 @using BaseApp.Interfaces
 @using BaseApp.Models
+@using System.Linq
 @inject ICustomerService _customerService;
+@inject NavigationManager NavigationManager
 
 <h1>Naslovna</h1>
 
-<MudTable Items="customersDueList">
-    <HeaderContent>
-        <MudTh>Ime</MudTh>
-        <MudTh>Oib</MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="Ime">@context.Name</MudTd>
-        <MudTd DataLabel="Količina">@context.Oib</MudTd>
-    </RowTemplate>
-</MudTable>
+<MudCard>
+    <MudCardContent>
+        <h3 class="mb-3">Aktivni dužnici</h3>
+        @if (customersDueList.Count > 0)
+        {
+            <MudTable Items="customersDueListPaginated" RowsPerPage="5">
+                <HeaderContent>
+                    <MudTh>Ime</MudTh>
+                    <MudTh>Oib</MudTh>
+                    <MudTh>Kontakt</MudTh>
+                    <MudTh>Email</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Ime">@context.Name</MudTd>
+                    <MudTd DataLabel="Oib">@context.Oib</MudTd>
+                    <MudTd DataLabel="Phone">@context.Phone</MudTd>
+                    <MudTd DataLabel="Email">@context.Email</MudTd>
+                    <MudTd DataLabel="">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCustomerDetails(context)">Detalji</MudButton>
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudPagination Count="totalPages" SelectedChanged="HandlePageChange" />
+                </PagerContent>
+            </MudTable>
+        }
+        else
+        {
+            <div>Nema aktivnih dužnika!</div>
+        }
+    </MudCardContent>
+</MudCard>
+@if (showCustomerInfo)
+{
+    <CustomerInfo style="margin-top: 1rem;" id="@SelectedCustomer!.Oib"></CustomerInfo>
+}
+<div style="margin-top: 1rem;">
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="NavigateToAddCustomerPage" Style="width: 160px; margin-top: 4px;">Dodaj klijenta</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="NavigateToCustomerInfo" Style="width: 160px; margin-top: 4px;">Dodaj artikl</MudButton>
+</div>
+
 
 @code {
     private List<Customer> customersDueList = new();
+    private List<Customer> customersDueListPaginated = new();
+    private Customer? SelectedCustomer;
+    private bool showCustomerInfo = false;
+    private bool showCustomerTable = true;
+
+
+    private int totalPages, rowsPerPage = 5, currentPage = 1;
 
     protected override async Task OnInitializedAsync()
     {
         var customers = await _customerService.GetAllCustomersAsync();
-        customersDueList = customers;
+        customersDueList = customers.Where(c => c.Overdue).ToList();
+        CalculateTotalPages();
+        UpdatePagedCustomers();
+    }
+
+    private void CalculateTotalPages()
+    {
+        totalPages = (int)Math.Ceiling(customersDueList.Count / (double)rowsPerPage);
+    }
+
+    private void UpdatePagedCustomers()
+    {
+        // Slice your data based on the current page and RowsPerPage
+        int startIndex = (currentPage - 1) * rowsPerPage;
+        customersDueListPaginated = customersDueList.Skip(startIndex).Take(rowsPerPage).ToList();
+    }
+
+    private void HandlePageChange(int newPage)
+    {
+        currentPage = newPage;
+        UpdatePagedCustomers();
+    }
+
+    private void NavigateToAddCustomerPage()
+    {
+        NavigationManager.NavigateTo("/add-customer");
+    }
+
+    private void ShowCustomerDetails(Customer customer)
+    {
+        SelectedCustomer = customer;
+        showCustomerTable = false;
+        showCustomerInfo = true;
+    }
+
+    private void NavigateToCustomerInfo()
+    {
+        showCustomerInfo = true;
+
     }
 }

@@ -1,6 +1,7 @@
 ﻿using BaseApp.Interfaces;
 using BaseApp.Models;
 using Newtonsoft.Json;
+using System.Net.Http.Json;
 
 namespace BaseApp.Services
 {
@@ -12,9 +13,19 @@ namespace BaseApp.Services
             _httpClient = httpClient;
             _httpClient.BaseAddress = new Uri("https://localhost:44398/api");
         }
-        public Task<Customer> CreateCustomerAsync(Customer customer)
+        public async Task<Customer> CreateCustomerAsync(Customer customer)
         {
-            throw new NotImplementedException();
+            var response = await _httpClient.PostAsJsonAsync($"{_httpClient.BaseAddress}/Customer", customer);
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var createdCustomer = JsonConvert.DeserializeObject<Customer>(responseContent);
+                return createdCustomer!;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public Task<Customer> DeleteCustomerAsync(Customer customer)
@@ -31,11 +42,10 @@ namespace BaseApp.Services
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     var customers = JsonConvert.DeserializeObject<List<Customer>>(content);
-                    return customers;
+                    return customers!;
                 }
                 else
                 {
-                    // Handle error (e.g., log, show a message to the user)
                     return null;
                 }
             }
@@ -47,9 +57,26 @@ namespace BaseApp.Services
             }
         }
 
-        public Task<Customer> GetCustomerByOibAsync(string oib)
+        public async Task<Customer> GetCustomerByOibAsync(string oib)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_httpClient.BaseAddress}/Customer/id?oib={oib}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var customer = JsonConvert.DeserializeObject<Customer>(content);
+                    return customer!;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch(Exception ex)
+            {
+                return null;
+            }
         }
 
         public Task<Customer> UpdateCustomerAsync(Customer customer)

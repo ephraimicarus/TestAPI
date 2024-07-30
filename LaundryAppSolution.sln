@@ -5,7 +5,7 @@ VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaseApi", "TestAPI\BaseApi.csproj", "{1EF52B86-80D9-42E8-88E0-64CEC4A066CC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseApp", "BaseApp\BaseApp.csproj", "{79899914-CDA4-4C0F-A5C7-C51A705CDDC1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaseApp", "BaseApp\BaseApp.csproj", "{79899914-CDA4-4C0F-A5C7-C51A705CDDC1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -24,7 +24,7 @@ namespace BaseApp
     		builder.Logging.AddDebug();
 #endif
             builder.Services.AddMudServices();
-            builder.Services.AddSingleton<HttpClient>();
+            builder.Services.AddHttpClient();
             builder.Services.AddTransient<ICustomerService, CustomerService>();
             return builder.Build();
         }
