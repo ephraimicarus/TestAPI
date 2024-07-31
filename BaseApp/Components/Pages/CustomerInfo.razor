@@ -5,26 +5,7 @@
 <h3>Dodaj klijenta</h3>
 
 <MudContainer>
-    <MudTable Items="customersDueListPaginated" RowsPerPage="5">
-        <HeaderContent>
-            <MudTh>Ime</MudTh>
-            <MudTh>Oib</MudTh>
-            <MudTh>Kontakt</MudTh>
-            <MudTh>Email</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd DataLabel="Ime">@context.Name</MudTd>
-            <MudTd DataLabel="Oib">@context.Oib</MudTd>
-            <MudTd DataLabel="Phone">@context.Phone</MudTd>
-            <MudTd DataLabel="Email">@context.Email</MudTd>
-            <MudTd DataLabel="">
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCustomerDetails(context)">Detalji</MudButton>
-            </MudTd>
-        </RowTemplate>
-        <PagerContent>
-            <MudPagination Count="totalPages" SelectedChanged="HandlePageChange" />
-        </PagerContent>
-    </MudTable>
+    <MudText Typo="Typo.h6">@customer.Name</MudText>
 </MudContainer>
 
 @code {

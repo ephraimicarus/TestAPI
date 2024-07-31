@@ -21,6 +21,13 @@ namespace TestAPI.Controllers
 			return Ok(newInventory);
 		}
 
+		[HttpGet]
+		public async Task<ActionResult<List<Inventory>>> GetAllInventories(int customerId)
+		{
+			var inventories = await _inventoryService.GetInventoriesAsync(customerId);
+			return Ok(inventories);
+		}
+
 		[HttpPut]
 		public async Task<ActionResult<Inventory>> UpdateInventory(string category, int inventoryId, int quantity)
 		{

@@ -77,6 +77,9 @@ namespace TestAPI.Services
             return item;
         }
 
-        public async Task<List<Inventory>> GetInventoriesAsync(int customerId) => await _context.Inventories.Where(i => i.Customer!.CustomerId == customerId).ToListAsync();
+        public async Task<List<Inventory>> GetInventoriesAsync(int customerId) => await _context.Inventories
+            .Include(i=>i.Customer)
+            .Include(i=>i.Item)
+            .Where(i => i.Customer!.CustomerId == customerId).ToListAsync();
     }
 }
