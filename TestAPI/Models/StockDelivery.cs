@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using BaseApi.Models;
 
 namespace TestAPI.Models
 {
@@ -11,8 +12,7 @@ namespace TestAPI.Models
         public Inventory? Inventory { get; set; }
         public int QuantityDelivered { get; set; }
         public int QuantityToReturn { get; set; }
-        public DateTime TransactionDate { get; set; } = DateTime.Now;
-		public DateTime DateDue { get; set; }
+		public TransactionModel? TransactionInfo { get; set; }
 
 	}
 }

@@ -9,6 +9,6 @@ namespace BaseApi.Interfaces
         Task<List<Inventory>> CreateInventory(int customerId);
         Task<Inventory> UpdateInventory(string category, int inventoryId, int quantity);
         Task<Item> ExpandInventory(int itemId);
-
-	}
+        Task<BaseInventory> AddItemToBaseInventory(Item item);
+    }
 }

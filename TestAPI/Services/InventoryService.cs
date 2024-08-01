@@ -38,16 +38,26 @@ namespace TestAPI.Services
 
         public async Task<Inventory> UpdateInventory(string category, int inventoryId, int quantity)
         {
-            if (category == TransactionCategory.Return.ToString())
-                quantity *= -1;
             var inventory = await _context.Inventories
+                .Include(i=>i.Item)
                 .SingleOrDefaultAsync(inv => inv.InventoryId == inventoryId);
 
             if (inventory != null)
             {
-                if ((inventory.Quantity + quantity) < 0)
-                    return inventory;//TODO: Error handling for case
-                inventory.Quantity += quantity;
+                var baseInventory = await _context.BaseInventory.SingleOrDefaultAsync(bi => bi.Item!.ItemId == inventory!.Item!.ItemId);
+
+                if (category == TransactionCategory.Delivery.ToString())
+                {
+                    baseInventory.QuantityStored -= quantity;
+                    baseInventory.QuantityRented += quantity;
+                    inventory.Quantity += quantity;
+                }
+                else
+                {
+                    baseInventory.QuantityStored += quantity;
+                    baseInventory.QuantityRented -= quantity;
+                    inventory.Quantity -= quantity;
+                }
                 await _context.SaveChangesAsync();
                 return inventory;
             }
@@ -56,13 +66,26 @@ namespace TestAPI.Services
                 return null;//TODO: All null reference error/exception handling
             }
         }
-
+        public async Task<BaseInventory> AddItemToBaseInventory(Item item)
+        {
+            BaseInventory baseInventory = new()
+            {
+                Item = item,
+                QuantityRented = 0,
+                QuantityStored = 0,
+            };
+            _context.Add(baseInventory);
+            await _context.SaveChangesAsync();
+            return baseInventory;
+        }
         public async Task<Item> ExpandInventory(int itemId)
         {
             var item = await _context.Items.SingleOrDefaultAsync(i => i.ItemId == itemId);
             if (item == null)
                 return null;
-            var customerList = _context.Customers.ToList();
+            var customerList = await _context.Customers.ToListAsync();
+            if (customerList.Count == 0)
+                return null;
             foreach (var customer in customerList)
             {
                 Inventory inventory = new()
@@ -78,8 +101,8 @@ namespace TestAPI.Services
         }
 
         public async Task<List<Inventory>> GetInventoriesAsync(int customerId) => await _context.Inventories
-            .Include(i=>i.Customer)
-            .Include(i=>i.Item)
+            .Include(i => i.Customer)
+            .Include(i => i.Item)
             .Where(i => i.Customer!.CustomerId == customerId).ToListAsync();
     }
 }

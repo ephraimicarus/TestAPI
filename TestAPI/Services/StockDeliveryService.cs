@@ -7,60 +7,83 @@ using TestAPI.Models;
 
 namespace TestAPI.Services
 {
-	public class StockDeliveryService : IStockDeliveryService
-	{
-		private readonly ApplicationContext _context;
-		private readonly IInventoryService _inventoryService;
-		private readonly ITransactionService _transactionService;
-		public StockDeliveryService(ApplicationContext context,
-			IInventoryService inventoryService,
-			ITransactionService transactionService)
-		{
-			_context = context;
-			_inventoryService = inventoryService;
-			_transactionService = transactionService;
-		}
-		public async Task<StockDelivery> CreateDeliveryAsync(TransactionDTO delivery)
-		{
-			var inventory = await _context.Inventories
-				.Include(c => c.Customer)
-				.Include(i => i.Item)
-				.SingleOrDefaultAsync(i => i.InventoryId == delivery.InventoryId);
-			try
-			{
-				StockDelivery transactionCreated = new()
-				{
-					Inventory = inventory,
-					QuantityDelivered = delivery.OrderTotal,
-					QuantityToReturn = delivery.OrderTotal,
-					DateDue = delivery.TransactionDate.AddDays(7),
-				};
-				_context.Add(transactionCreated);
-				var updatedInventory = await _inventoryService.UpdateInventory(TransactionCategory.Delivery.ToString(),
-					delivery.InventoryId,
-					transactionCreated.QuantityDelivered);
-				if (updatedInventory == null)
-					return null;
-				var stockJournalRecordAdded = await _transactionService.AddStockJournalRecord(TransactionCategory.Delivery.ToString(),
-					transactionCreated.StockDeliveryId);
-				if (stockJournalRecordAdded == null)
-					return null;
-				await _context.SaveChangesAsync();
-				return transactionCreated;
-			}
-			catch (Exception ex)
-			{
-				throw;
-			}
-		}
+    public class StockDeliveryService : IStockDeliveryService
+    {
+        private readonly ApplicationContext _context;
+        private readonly IInventoryService _inventoryService;
+        private readonly ITransactionService _transactionService;
+        public StockDeliveryService(ApplicationContext context,
+            IInventoryService inventoryService,
+            ITransactionService transactionService)
+        {
+            _context = context;
+            _inventoryService = inventoryService;
+            _transactionService = transactionService;
+        }
+        public async Task<List<StockDelivery>> CreateDeliveryAsync(Dictionary<int, int> inventories)
+        {
+            List<int> validateInventoryValues = new();
+            List<StockDelivery> deliveryList = new();
+            Dictionary<Inventory, int> inventoriesToUpdate = new();
+            foreach (var item in inventories)
+            {                
+                var inventory = await _context.Inventories
+                    .Include(i=>i.Item)
+                    .SingleOrDefaultAsync(i => i.InventoryId == item.Key);
+                var baseInventory = await _context.BaseInventory
+                    .Include(i => i.Item)
+                    .SingleOrDefaultAsync(bi => bi!.Item!.ItemId == inventory!.Item!.ItemId);
+                if(baseInventory!=null)
+                    validateInventoryValues.Add(baseInventory.QuantityStored - item.Value);
+                if (inventory != null)
+                    inventoriesToUpdate.Add(inventory, item.Value);
+            }
+            if (validateInventoryValues.Min() < 0)
+                return null;
+            var transaction = await _transactionService.InitiateTransaction(TransactionCategory.Delivery.ToString());
+            foreach (var item in inventoriesToUpdate)
+            {
+                StockDelivery transactionCreated = new()
+                {
+                    Inventory = item.Key,
+                    QuantityDelivered = item.Value,
+                    QuantityToReturn = item.Value,
+                    TransactionInfo = transaction
+                };
+                _context.Add(transactionCreated);
+                var updatedInventory = await _inventoryService.UpdateInventory(TransactionCategory.Delivery.ToString(),
+                    transactionCreated.Inventory.InventoryId,
+                    transactionCreated.QuantityDelivered);
+                if (updatedInventory == null)
+                    return null;
+                var stockJournalRecordAdded = await _transactionService.AddStockJournalRecord(TransactionCategory.Delivery.ToString(),
+                    transactionCreated.StockDeliveryId);
+                if (stockJournalRecordAdded == null)
+                    return null;
+                deliveryList.Add(transactionCreated);
+                await _context.SaveChangesAsync();
+            }
+            return deliveryList;
+        }
 
-		public async Task<StockDelivery> UpdateDeliveryAsync(int deliveryId, int quantity)
-		{
-			var deliveryToUpdate = await _context.Deliveries.SingleOrDefaultAsync(d => d.StockDeliveryId == deliveryId);
-			if (deliveryToUpdate != null)
-				deliveryToUpdate.QuantityToReturn -= quantity;
-			await _context.SaveChangesAsync();
-			return deliveryToUpdate!;
-		}
-	}
+        public async Task<StockDelivery> UpdateDeliveryAsync(int deliveryId, int quantity)
+        {
+            var deliveryToUpdate = await _context.Deliveries.SingleOrDefaultAsync(d => d.StockDeliveryId == deliveryId);
+            if (deliveryToUpdate != null)
+                deliveryToUpdate.QuantityToReturn -= quantity;
+            await _context.SaveChangesAsync();
+            return deliveryToUpdate!;
+        }
+
+
+
+        private void SetOverdueCustomerFlag(List<Customer> customers)
+        {
+            foreach (var customer in customers)
+            {
+                customer.Overdue = true;
+            }
+            _context.SaveChanges();
+        }
+    }
 }

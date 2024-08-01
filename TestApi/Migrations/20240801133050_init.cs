@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BaseApi.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -57,6 +57,41 @@ namespace BaseApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Transactions",
+                columns: table => new
+                {
+                    TransactionId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TransactionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DateDue = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Transactions", x => x.TransactionId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BaseInventory",
+                columns: table => new
+                {
+                    BaseInventoryId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ItemId = table.Column<int>(type: "int", nullable: true),
+                    QuantityStored = table.Column<int>(type: "int", nullable: false),
+                    QuantityRented = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BaseInventory", x => x.BaseInventoryId);
+                    table.ForeignKey(
+                        name: "FK_BaseInventory_Items_ItemId",
+                        column: x => x.ItemId,
+                        principalTable: "Items",
+                        principalColumn: "ItemId");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Inventories",
                 columns: table => new
                 {
@@ -93,8 +128,7 @@ namespace BaseApi.Migrations
                     InventoryItemId = table.Column<int>(type: "int", nullable: true),
                     QuantityDelivered = table.Column<int>(type: "int", nullable: false),
                     QuantityToReturn = table.Column<int>(type: "int", nullable: false),
-                    TransactionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DateDue = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    TransactionInfoTransactionId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -104,6 +138,11 @@ namespace BaseApi.Migrations
                         columns: x => new { x.InventoryCustomerId, x.InventoryItemId },
                         principalTable: "Inventories",
                         principalColumns: new[] { "CustomerId", "ItemId" });
+                    table.ForeignKey(
+                        name: "FK_Deliveries_Transactions_TransactionInfoTransactionId",
+                        column: x => x.TransactionInfoTransactionId,
+                        principalTable: "Transactions",
+                        principalColumn: "TransactionId");
                 });
 
             migrationBuilder.CreateTable(
@@ -113,8 +152,7 @@ namespace BaseApi.Migrations
                     StockReturnId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     DeliveryStockDeliveryId = table.Column<int>(type: "int", nullable: true),
-                    QuantityReturned = table.Column<int>(type: "int", nullable: false),
-                    ReturnDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    QuantityReturned = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -127,6 +165,11 @@ namespace BaseApi.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_BaseInventory_ItemId",
+                table: "BaseInventory",
+                column: "ItemId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Customers_Oib",
                 table: "Customers",
                 column: "Oib",
@@ -136,6 +179,11 @@ namespace BaseApi.Migrations
                 name: "IX_Deliveries_InventoryCustomerId_InventoryItemId",
                 table: "Deliveries",
                 columns: new[] { "InventoryCustomerId", "InventoryItemId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Deliveries_TransactionInfoTransactionId",
+                table: "Deliveries",
+                column: "TransactionInfoTransactionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Inventories_ItemId",
@@ -152,6 +200,9 @@ namespace BaseApi.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "BaseInventory");
+
+            migrationBuilder.DropTable(
                 name: "Returns");
 
             migrationBuilder.DropTable(
@@ -162,6 +213,9 @@ namespace BaseApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "Inventories");
+
+            migrationBuilder.DropTable(
+                name: "Transactions");
 
             migrationBuilder.DropTable(
                 name: "Customers");

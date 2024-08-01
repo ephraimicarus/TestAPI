@@ -5,7 +5,7 @@ namespace BaseApi.Interfaces
 {
     public interface IStockReturnService
     {
-        Task<StockReturn> CreateReturnAsync(int transactionId, int quantityReturned);
+        Task<List<StockReturn>> CreateReturnAsync(Dictionary<int, int> stockReturns);
         Task<StockReturn> UpdateReturnAsync(StockReturn transaction);
     }
 }

@@ -12,8 +12,8 @@ using TestAPI.Data;
 namespace BaseApi.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20240620182644_Init")]
-    partial class Init
+    [Migration("20240801133050_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,52 @@ namespace BaseApi.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("BaseApi.Models.TransactionModel", b =>
+                {
+                    b.Property<int>("TransactionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TransactionId"));
+
+                    b.Property<DateTime>("DateDue")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("TransactionId");
+
+                    b.ToTable("Transactions");
+                });
+
+            modelBuilder.Entity("TestAPI.Models.BaseInventory", b =>
+                {
+                    b.Property<int>("BaseInventoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BaseInventoryId"));
+
+                    b.Property<int?>("ItemId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuantityRented")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuantityStored")
+                        .HasColumnType("int");
+
+                    b.HasKey("BaseInventoryId");
+
+                    b.HasIndex("ItemId");
+
+                    b.ToTable("BaseInventory");
+                });
 
             modelBuilder.Entity("TestAPI.Models.Customer", b =>
                 {
@@ -116,9 +162,6 @@ namespace BaseApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StockDeliveryId"));
 
-                    b.Property<DateTime>("DateDue")
-                        .HasColumnType("datetime2");
-
                     b.Property<int?>("InventoryCustomerId")
                         .HasColumnType("int");
 
@@ -131,10 +174,12 @@ namespace BaseApi.Migrations
                     b.Property<int>("QuantityToReturn")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("TransactionDate")
-                        .HasColumnType("datetime2");
+                    b.Property<int?>("TransactionInfoTransactionId")
+                        .HasColumnType("int");
 
                     b.HasKey("StockDeliveryId");
+
+                    b.HasIndex("TransactionInfoTransactionId");
 
                     b.HasIndex("InventoryCustomerId", "InventoryItemId");
 
@@ -174,14 +219,20 @@ namespace BaseApi.Migrations
                     b.Property<int>("QuantityReturned")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("ReturnDate")
-                        .HasColumnType("datetime2");
-
                     b.HasKey("StockReturnId");
 
                     b.HasIndex("DeliveryStockDeliveryId");
 
                     b.ToTable("Returns");
+                });
+
+            modelBuilder.Entity("TestAPI.Models.BaseInventory", b =>
+                {
+                    b.HasOne("TestAPI.Models.Item", "Item")
+                        .WithMany()
+                        .HasForeignKey("ItemId");
+
+                    b.Navigation("Item");
                 });
 
             modelBuilder.Entity("TestAPI.Models.Inventory", b =>
@@ -205,11 +256,17 @@ namespace BaseApi.Migrations
 
             modelBuilder.Entity("TestAPI.Models.StockDelivery", b =>
                 {
+                    b.HasOne("BaseApi.Models.TransactionModel", "TransactionInfo")
+                        .WithMany()
+                        .HasForeignKey("TransactionInfoTransactionId");
+
                     b.HasOne("TestAPI.Models.Inventory", "Inventory")
                         .WithMany()
                         .HasForeignKey("InventoryCustomerId", "InventoryItemId");
 
                     b.Navigation("Inventory");
+
+                    b.Navigation("TransactionInfo");
                 });
 
             modelBuilder.Entity("TestAPI.Models.StockReturn", b =>

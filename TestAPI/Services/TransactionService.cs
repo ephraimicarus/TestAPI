@@ -1,4 +1,6 @@
 ﻿using BaseApi.Interfaces;
+using BaseApi.Models;
+using BaseApi.Utility;
 using TestAPI.Data;
 using TestAPI.Models;
 
@@ -23,5 +25,31 @@ namespace BaseApi.Services
 			await _context.SaveChangesAsync();
 			return stockJournal;
 		}
-	}
+
+        public async Task<TransactionModel> InitiateTransaction(string description)
+        {
+			if(description == TransactionCategory.Delivery.ToString())
+			{
+                TransactionModel transactionModel = new TransactionModel()
+                {
+                    Description = description,
+                    DateDue = DateTime.Now.AddDays(7)
+                };
+                _context.Transactions.Add(transactionModel);
+                await _context.SaveChangesAsync();
+                return transactionModel;
+            }
+			else
+			{
+                TransactionModel transactionModel = new TransactionModel()
+                {
+                    Description = description,
+                };
+                _context.Transactions.Add(transactionModel);
+                await _context.SaveChangesAsync();
+                return transactionModel;
+            }
+            
+        }
+    }
 }

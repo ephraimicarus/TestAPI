@@ -11,6 +11,5 @@ namespace TestAPI.Models
 		public int StockReturnId { get; set; }
         public StockDelivery? Delivery { get; set; }
         public int QuantityReturned { get; set; }
-		public DateTime ReturnDate { get; set; } = DateTime.Now;
 	}
 }

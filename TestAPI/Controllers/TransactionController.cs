@@ -19,11 +19,11 @@ namespace TestAPI.Controllers
 
 		[Route("api/[controller]/delivery")]
 		[HttpPost]
-		public async Task<ActionResult<StockDelivery>> CreateDelivery([FromBody] TransactionDTO delivery)
+		public async Task<ActionResult<StockDelivery>> CreateDelivery([FromBody] Dictionary<int, int> inventories)
 		{
 			try
 			{
-				var newDelivery = await _deliveryService.CreateDeliveryAsync(delivery);
+				var newDelivery = await _deliveryService.CreateDeliveryAsync(inventories);
 				return Ok(newDelivery);
 			}
 			catch (Exception ex)
@@ -34,11 +34,12 @@ namespace TestAPI.Controllers
 
 		[Route("api/[controller]/return")]
 		[HttpPost]
-		public async Task<ActionResult<StockReturn>> CreateReturn([FromBody] StockReturnDTO stockReturn)
+		public async Task<ActionResult<StockReturn>> CreateReturn([FromBody] Dictionary<int, int> stockReturns)
 		{
 			try
 			{
-				var newReturn = await _returnService.CreateReturnAsync(stockReturn.DeliveryId, stockReturn.Quantity);
+				var newReturn = await _returnService.CreateReturnAsync(stockReturns);
+		
 				return Ok(newReturn);
 			}
 			catch (Exception ex)
@@ -46,5 +47,20 @@ namespace TestAPI.Controllers
 				return BadRequest(ex.Message);
 			}
 		}
+
+		//[Route("api/[controller]/duecustomers")]
+		//[HttpGet]
+		//public async Task<ActionResult<List<Customer>>> GetCustomersInViolation()
+		//{
+  //          try
+  //          {
+		//		var overdueStockDeliveryReturns = await _deliveryService.();
+  //              return Ok(overdueStockDeliveryReturns);
+  //          }
+  //          catch (Exception ex)
+  //          {
+  //              return BadRequest(ex.Message);
+  //          }
+  //      }
 	}
 }

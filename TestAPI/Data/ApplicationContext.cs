@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BaseApi.Models;
+using Microsoft.EntityFrameworkCore;
 using TestAPI.Models;
 
 namespace TestAPI.Data
@@ -14,6 +15,8 @@ namespace TestAPI.Data
 		public DbSet<StockDelivery> Deliveries { get; set; }
 		public DbSet<StockReturn> Returns { get; set; }
 		public DbSet<StockJournal> StockJournals { get; set; }
+		public DbSet<BaseInventory> BaseInventory { get; set; }
+		public DbSet<TransactionModel> Transactions { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
