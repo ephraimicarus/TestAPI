@@ -84,7 +84,7 @@
         var customers = await _customerService.GetAllCustomersAsync();
         if (customers != null)
             isLoading = false;
-        customersDueList = customers.Where(c => c.Overdue).ToList();
+        customersDueList = customers!.Where(c => c.Overdue).ToList();
         CalculateTotalPages();
         UpdatePagedCustomers();
     }

@@ -38,7 +38,7 @@ namespace BaseApi.Services
                     QuantityReturned = item.Value,
                 };
                 stockReturnList.Add(transactionCreated);
-                _context.Add(transactionCreated);
+                await _context.AddAsync(transactionCreated);
                 validateInventoryValues.Add(delivery!.QuantityToReturn - item.Value);
                 deliveryList.Add(delivery);
             }
