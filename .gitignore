@@ -366,5 +366,3 @@ FodyWeavers.xsd
 /MauiApp1/Services/ClientApiService.cs
 /MauiApp1/Services/IClientApiService.cs
 /BaseApp/Services/ClientApiService.cs
-/BaseAppPerla/Services/CustomerDueService.cs
-/BaseAppPerla/Services/CustomerService.cs
