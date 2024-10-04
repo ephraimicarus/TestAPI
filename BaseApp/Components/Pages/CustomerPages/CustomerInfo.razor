@@ -1,0 +1,60 @@
+﻿@using BaseApp.Interfaces
+@using BaseApp.Models
+@using System.Linq
+@inject ICustomerService _customerService;
+
+<MudContainer>
+    <MudTextField @bind-Value="customer.Name" Label="Ime" Variant="Variant.Filled" ReadOnly="true" />
+    <MudTextField @bind-Value="customer.Oib" Label="OIB" Variant="Variant.Filled" ReadOnly="true" />
+    <MudTextField @bind-Value="customer.Phone" Label="Kontakt" Variant="Variant.Filled" ReadOnly="true" />
+    <MudTextField @bind-Value="customer.Email" Label="Email" Variant="Variant.Filled" ReadOnly="true" />
+
+    <MudTable Items="customerList" RowsPerPage="5">
+        <HeaderContent>
+            <MudTh>Artikl</MudTh>
+            <MudTh>Količina</MudTh>
+            <MudTh>Originalni datum povrata</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Artikl">@context.Name</MudTd>
+            <MudTd DataLabel="Količina">@context.Oib</MudTd>
+            <MudTd DataLabel="Originalni datum povrata">@context.Phone</MudTd>
+           
+        </RowTemplate>
+        <PagerContent>
+            <MudPagination Count="totalPages" SelectedChanged="HandlePageChange" />
+        </PagerContent>
+    </MudTable>
+
+</MudContainer>
+
+@code {
+    [Parameter]
+    public string? id { get; set; }
+    private Customer customer = new();
+
+    private List<Customer> customerList = new();
+    private List<Customer> customersDueListPaginated = new();
+
+    private int totalPages, rowsPerPage = 5, currentPage = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var customers = await _customerService.GetAllCustomersAsync();
+        customerList = customers;
+        var res = await _customerService.GetCustomerByOibAsync(id!);
+        customer = res;
+    }
+
+    private void UpdatePagedCustomers()
+    {
+        int startIndex = (currentPage - 1) * rowsPerPage;
+        customersDueListPaginated = customerList.Skip(startIndex).Take(rowsPerPage).ToList();
+    }
+
+    private void HandlePageChange(int newPage)
+    {
+        currentPage = newPage;
+        UpdatePagedCustomers();
+    }
+}

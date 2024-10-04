@@ -1,9 +1,9 @@
-﻿using BaseApp.Interfaces;
-using BaseApp.Services;
+﻿using BaseAppPerla.Interfaces;
+using BaseAppPerla.Services;
 using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
 
-namespace BaseApp
+namespace BaseAppPerla
 {
     public static class MauiProgram
     {
@@ -21,13 +21,13 @@ namespace BaseApp
 
 #if DEBUG
     		builder.Services.AddBlazorWebViewDeveloperTools();
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
-            builder.Services.AddMudServices();
             builder.Services.AddHttpClient();
-            builder.Services.AddTransient<ICustomerService, CustomerService>();
-            builder.Services.AddTransient<ICustomerDueService, CustomerDueService>();
+            builder.Services.AddMudServices();
 
+            builder.Services.AddTransient<ICustomerDueService, CustomerDueService>();
+            builder.Services.AddTransient<ICustomerService, CustomerService>();
             return builder.Build();
         }
     }

@@ -5,7 +5,7 @@ VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaseApi", "TestAPI\BaseApi.csproj", "{1EF52B86-80D9-42E8-88E0-64CEC4A066CC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaseApp", "BaseApp\BaseApp.csproj", "{79899914-CDA4-4C0F-A5C7-C51A705CDDC1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseAppPerla", "BaseAppPerla\BaseAppPerla.csproj", "{4A6E4C23-6332-4584-8AA5-227D642219B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,12 +17,12 @@ Global
 		{1EF52B86-80D9-42E8-88E0-64CEC4A066CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EF52B86-80D9-42E8-88E0-64CEC4A066CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1EF52B86-80D9-42E8-88E0-64CEC4A066CC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{79899914-CDA4-4C0F-A5C7-C51A705CDDC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{79899914-CDA4-4C0F-A5C7-C51A705CDDC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{79899914-CDA4-4C0F-A5C7-C51A705CDDC1}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{79899914-CDA4-4C0F-A5C7-C51A705CDDC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{79899914-CDA4-4C0F-A5C7-C51A705CDDC1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{79899914-CDA4-4C0F-A5C7-C51A705CDDC1}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{4A6E4C23-6332-4584-8AA5-227D642219B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A6E4C23-6332-4584-8AA5-227D642219B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A6E4C23-6332-4584-8AA5-227D642219B7}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{4A6E4C23-6332-4584-8AA5-227D642219B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A6E4C23-6332-4584-8AA5-227D642219B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A6E4C23-6332-4584-8AA5-227D642219B7}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

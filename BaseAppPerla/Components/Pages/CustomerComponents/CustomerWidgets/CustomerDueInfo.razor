@@ -1,0 +1,42 @@
+﻿@using BaseAppPerla.Interfaces
+@using BaseAppPerla.Models
+@inject ICustomerService _customerService;
+
+<MudCard>
+    <MudCardHeader>
+        <MudText Typo="Typo.h5">Customer Details</MudText>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudGrid>
+            <MudItem xs="12" sm="6">
+                <MudText><b>Name:</b> @customer.Name</MudText>
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudText><b>OIB:</b> @customer.Oib</MudText>
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudText><b>Email:</b> @customer.Email</MudText>
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudText><b>Phone:</b> @customer.Phone</MudText>
+            </MudItem>
+            <!-- Add more items as needed -->
+        </MudGrid>
+    </MudCardContent>
+    <MudCardActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary">Edit</MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Secondary">Delete</MudButton>
+    </MudCardActions>
+</MudCard>
+
+
+@code {
+    [Parameter]
+    public string? oib { get; set; }
+    private Customer customer = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        customer = await _customerService.GetCustomerByOibAsync(oib!);
+    }
+}

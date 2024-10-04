@@ -1,0 +1,136 @@
+﻿@page "/"
+@using BaseAppPerla.Components.Pages.CustomerComponents.CustomerWidgets
+@using BaseAppPerla.Interfaces
+@using BaseAppPerla.Models
+@inject ICustomerDueService _customerDueService;
+
+<h1>Naslovna</h1>
+
+<MudCard>
+    <MudCardContent>
+        @if (showCustomerTable)
+        {
+            <h3 class="mb-3">Aktivni dužnici</h3>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ResetCustomerInfo()" Style="width: 160px; margin-top: 4px;">Prikaži dužnike</MudButton>
+        }
+        @if (customersDueList.Count > 0)
+        {
+            @if (showCustomerTable)
+            {
+                <MudTable Items="customersDueListPaginated" RowsPerPage="5" Hover="true" Striped="true" Outlined="true">
+                    <HeaderContent>
+                        <MudTh>Ime</MudTh>
+                        <MudTh>Oib</MudTh>
+                        <MudTh>Kontakt</MudTh>
+                        <MudTh>Email</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Ime">@context.Name</MudTd>
+                        <MudTd DataLabel="Oib">@context.Oib</MudTd>
+                        <MudTd DataLabel="Phone">@context.Phone</MudTd>
+                        <MudTd DataLabel="Email">@context.Email</MudTd>
+                        <MudTd DataLabel="">
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCustomerDetails(context)">Detalji</MudButton>
+                        </MudTd>
+                    </RowTemplate>
+                    <PagerContent>
+                        <MudPagination Count="totalPages" SelectedChanged="HandlePageChange" />
+                    </PagerContent>
+                </MudTable>
+            }
+        }
+        else
+        {
+            @if (isLoading)
+            {
+                <div>Provjeravam...</div>
+            }
+            else
+            {
+                <div>Nema aktivnih dužnika!</div>
+            }
+        }
+    </MudCardContent>
+</MudCard>
+
+@if (showCustomerInfo)
+{
+    <div style="margin-top: 1rem;">
+        <CustomerDueInfo oib="@SelectedCustomer!.Oib"></CustomerDueInfo>
+    </div>
+}
+
+@* <MudTable Items="customersDueListPaginated" RowsPerPage="5">
+    <HeaderContent>
+        <MudTh>Ime</MudTh>
+        <MudTh>Oib</MudTh>
+        <MudTh>Kontakt</MudTh>
+        <MudTh>Email</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Ime">@context.Name</MudTd>
+        <MudTd DataLabel="Oib">@context.Oib</MudTd>
+        <MudTd DataLabel="Phone">@context.Phone</MudTd>
+        <MudTd DataLabel="Email">@context.Email</MudTd>
+        <MudTd DataLabel="">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCustomerDetails(context)">Detalji</MudButton>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudPagination Count="totalPages" SelectedChanged="HandlePageChange" />
+    </PagerContent>
+</MudTable> *@
+
+@code {
+    private List<Customer> customersDueList = new();
+    private List<Customer> customersDueListPaginated = new();
+    private Customer? SelectedCustomer;
+
+
+    private bool showCustomerInfo = false;
+    private bool showCustomerTable = true;
+    private bool isLoading = true;
+
+    private int totalPages, rowsPerPage = 5, currentPage = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        customersDueList = await _customerDueService.GetOverdueCustomers();
+        if (customersDueList != null)
+        {
+            isLoading = false;
+        };
+        CalculateTotalPages();
+        UpdatePagedCustomers();
+    }
+
+    private void CalculateTotalPages()
+    {
+        totalPages = (int)Math.Ceiling(customersDueList.Count / (double)rowsPerPage);
+    }
+
+    private void UpdatePagedCustomers()
+    {
+        int startIndex = (currentPage - 1) * rowsPerPage;
+        customersDueListPaginated = customersDueList.Skip(startIndex).Take(rowsPerPage).ToList();
+    }
+    private void HandlePageChange(int newPage)
+    {
+        currentPage = newPage;
+        UpdatePagedCustomers();
+    }
+    private void ShowCustomerDetails(Customer customer)
+    {
+        SelectedCustomer = customer;
+        showCustomerTable = false;
+        showCustomerInfo = true;
+    }
+    private void ResetCustomerInfo()
+    {
+        showCustomerInfo = false;
+        showCustomerTable = true;
+    }
+}

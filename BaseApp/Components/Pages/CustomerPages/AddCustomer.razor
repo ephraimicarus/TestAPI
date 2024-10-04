@@ -1,0 +1,56 @@
+﻿@page "/add-customer"
+
+@using BaseApp.Interfaces
+@using BaseApp.Models
+@using System.Linq
+@inject ICustomerService _customerService;
+<h3>Dodaj klijenta</h3>
+
+<MudContainer>
+    <MudTextField T="string" Label="Ime klijenta" Required="true" RequiredError="Ime klijenta obvezno!" @bind-Value="customer.Name" />
+    <MudTextField Label="Oib" @bind-Value="customer.Oib" MaxLength="11"/>
+    <MudTextField Label="Adresa" @bind-Value="customer.Address" />
+    <MudTextField Label="Email" @bind-Value="customer.Email" />
+    <MudTextField Label="Telefon" @bind-Value="customer.Phone" />
+</MudContainer>
+<div style="margin-top: 1rem;">
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddCustomerAsync">Dodaj</MudButton>
+</div>
+
+<MudDialog @bind-Visible="isDialogOpen">
+    <DialogContent>
+        @if (isCustomerAdded)
+        {
+            <MudText Typo="Typo.h5">Klijent uspješno dodan!</MudText>
+            <MudText Typo="Typo.h6">Ime klijenta: @customer.Name</MudText>
+            <MudText Typo="Typo.h6">Oib klijenta: @customer.Oib</MudText>
+        }
+        else
+        {
+            <MudText Typo="Typo.h5">Greška pri unosu - provjerite unesene vrijednosti</MudText>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="() => isDialogOpen = false">Zatvori</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private Customer customer = new();
+    private bool isDialogOpen = false;
+    private bool isCustomerAdded = false;
+    private async Task AddCustomerAsync()
+    {
+        var res = await _customerService.CreateCustomerAsync(customer);
+        if (res != null)
+        {
+            isDialogOpen = true;
+            isCustomerAdded = true;
+        }
+        else
+        {
+            isDialogOpen = true;
+            isCustomerAdded = false;
+        }
+    }
+}

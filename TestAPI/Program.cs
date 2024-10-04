@@ -15,6 +15,7 @@ builder.Services.AddDbContext<ApplicationContext>(options => options.UseSqlServe
 	builder.Configuration.GetConnectionString("TestConn")));
 
 builder.Services.AddTransient<ICustomerService, CustomerService>();
+builder.Services.AddTransient<ICustomerDueService, CustomerDueService>();
 builder.Services.AddTransient<IItemService, ItemService>();
 builder.Services.AddTransient<IInventoryService, InventoryService>();
 builder.Services.AddTransient<IStockDeliveryService, StockDeliveryService>();
