@@ -1,12 +1,31 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BaseApi.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using TestAPI.Models;
 
 namespace BaseApi.Controllers
 {
+    [Route("api/[controller]")]
     public class CustomerDueController : Controller
     {
-        public IActionResult Index()
+        private readonly ICustomerDueService _customerDueService;
+        public CustomerDueController(ICustomerDueService customerDueService)
         {
-            return View();
+            _customerDueService = customerDueService;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<List<StockDelivery>>> GetCustomerDueItems(int customerId)
+        {
+            try
+            {
+                var customerDueItems = await _customerDueService.GetCustomerDueItems(customerId);
+                return Ok(customerDueItems);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

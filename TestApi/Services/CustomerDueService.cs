@@ -48,7 +48,7 @@ namespace BaseApi.Services
 
         public async Task<Customer> SetACustomerAsDue(Customer customer)
         {
-            var customerToSetDue = await _context.Customers.SingleOrDefaultAsync(c=>c.CustomerId == customer.CustomerId);
+            var customerToSetDue = await _context.Customers.SingleOrDefaultAsync(c => c.CustomerId == customer.CustomerId);
             customerToSetDue!.Overdue = true;
             await _customerService.UpdateCustomerAsync(customerToSetDue);
             return customerToSetDue;
@@ -65,6 +65,18 @@ namespace BaseApi.Services
                 }
             }
             return false;
+        }
+
+        public async Task<List<StockDelivery>> GetCustomerDueItems(int customerId)
+        {
+            var customerDeliveries = await _context.Deliveries
+                .Where(d => d.Inventory!.Customer!.CustomerId == customerId
+                && d.TransactionInfo!.DateDue.Day >= DateTime.Now.Day 
+                && d.QuantityToReturn == 0)
+                .Include(d => d.Inventory!.Item)
+                .Include(d => d.TransactionInfo)
+                .ToListAsync();
+            return customerDeliveries;
         }
     }
 }

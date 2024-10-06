@@ -53,12 +53,17 @@ namespace TestAPI.Services
 
 		public async Task<List<Item>> GetAllItemsAsync() => await _context.Items.ToListAsync();
 
-		public Task<Item> GetItemByIdAsync(int id)
-		{
-			throw new NotImplementedException();
-		}
+        public async Task<Item> GetItemByIdAsync(int id)
+        {
+            var item = await _context.Items.SingleOrDefaultAsync(i => i.ItemId == id);
+            if (item == null)
+            {
+                throw new KeyNotFoundException($"Item with id {id} not found.");
+            }
+            return item;
+        }
 
-		public async Task<Item> UpdateItemAsync(Item item)
+        public async Task<Item> UpdateItemAsync(Item item)
 		{
 			var itemToUpdate = _context.Items.Single(i => i.ItemId == item.ItemId);
 			try
