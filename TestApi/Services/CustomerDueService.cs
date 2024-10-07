@@ -56,7 +56,10 @@ namespace BaseApi.Services
 
         public async Task<bool> IsCustomerDue(Customer customer)
         {
-            var customerDeliveries = await _context.Deliveries.Where(d => d.Inventory!.Customer!.CustomerId == customer.CustomerId).ToListAsync();
+            var customerDeliveries = await _context.Deliveries
+                .Where(d => d.Inventory!.Customer!.CustomerId == customer.CustomerId)
+                .Include(d => d.TransactionInfo)
+                .ToListAsync();
             foreach (var c in customerDeliveries)
             {
                 if (c.QuantityToReturn != 0 && c.TransactionInfo!.DateDue < DateTime.Now)
@@ -72,7 +75,7 @@ namespace BaseApi.Services
             var customerDeliveries = await _context.Deliveries
                 .Where(d => d.Inventory!.Customer!.CustomerId == customerId
                 && d.TransactionInfo!.DateDue.Day >= DateTime.Now.Day 
-                && d.QuantityToReturn == 0)
+                && d.QuantityToReturn != 0)
                 .Include(d => d.Inventory!.Item)
                 .Include(d => d.TransactionInfo)
                 .ToListAsync();

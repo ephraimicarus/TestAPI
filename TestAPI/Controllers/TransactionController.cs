@@ -1,7 +1,5 @@
-﻿using BaseApi.DTOs;
-using BaseApi.Interfaces;
+﻿using BaseApi.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using TestAPI.DTOs;
 using TestAPI.Models;
 
 namespace TestAPI.Controllers
@@ -47,20 +45,5 @@ namespace TestAPI.Controllers
 				return BadRequest(ex.Message);
 			}
 		}
-
-		//[Route("api/[controller]/duecustomers")]
-		//[HttpGet]
-		//public async Task<ActionResult<List<Customer>>> GetCustomersInViolation()
-		//{
-  //          try
-  //          {
-		//		var overdueStockDeliveryReturns = await _deliveryService.();
-  //              return Ok(overdueStockDeliveryReturns);
-  //          }
-  //          catch (Exception ex)
-  //          {
-  //              return BadRequest(ex.Message);
-  //          }
-  //      }
 	}
 }

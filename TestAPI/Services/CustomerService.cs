@@ -60,7 +60,7 @@ namespace TestAPI.Services
         public async Task<Customer> UpdateCustomerAsync(Customer customer)
         {
             var customerToUpdate = await _context.Customers.SingleOrDefaultAsync(c => c.CustomerId == customer.CustomerId);
-            if (customerToUpdate != null)
+            if (customerToUpdate == null)
             {
                 throw new KeyNotFoundException($"Customer with ID {customer.CustomerId} not found.");
             }

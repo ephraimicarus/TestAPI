@@ -39,32 +39,41 @@ namespace TestAPI.Services
         public async Task<Inventory> UpdateInventory(string category, int inventoryId, int quantity)
         {
             var inventory = await _context.Inventories
-                .Include(i=>i.Item)
+                .Include(i => i.Item)
                 .SingleOrDefaultAsync(inv => inv.InventoryId == inventoryId);
 
-            if (inventory != null)
+            if (inventory == null)
             {
-                var baseInventory = await _context.BaseInventory.SingleOrDefaultAsync(bi => bi.Item!.ItemId == inventory!.Item!.ItemId);
+                throw new KeyNotFoundException($"Inventory with ID {inventoryId} not found.");
+            }
 
-                if (category == TransactionCategory.Delivery.ToString())
-                {
-                    baseInventory.QuantityStored -= quantity;
-                    baseInventory.QuantityRented += quantity;
-                    inventory.Quantity += quantity;
-                }
-                else
-                {
-                    baseInventory.QuantityStored += quantity;
-                    baseInventory.QuantityRented -= quantity;
-                    inventory.Quantity -= quantity;
-                }
-                await _context.SaveChangesAsync();
-                return inventory;
+            if(category == TransactionCategory.Return.ToString() && inventory.Quantity - quantity < 0)
+            {
+                throw new InvalidOperationException("Invalid quantity.");
+            }
+
+            var baseInventory = await _context.BaseInventory.SingleOrDefaultAsync(bi => bi.Item!.ItemId == inventory!.Item!.ItemId);
+
+            if (baseInventory == null)
+            {
+                throw new KeyNotFoundException($"BaseInventory with ID {inventory.Item!.ItemId} not found.");
+            }
+
+            if (category == TransactionCategory.Delivery.ToString())
+            {
+                baseInventory.QuantityStored -= quantity;
+                baseInventory.QuantityRented += quantity;
+                inventory.Quantity += quantity;
             }
             else
             {
-                return null;//TODO: All null reference error/exception handling
+                baseInventory.QuantityStored += quantity;
+                baseInventory.QuantityRented -= quantity;
+                inventory.Quantity -= quantity;
             }
+            await _context.SaveChangesAsync();
+            return inventory;
+
         }
         public async Task<BaseInventory> AddItemToBaseInventory(Item item)
         {

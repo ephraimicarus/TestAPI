@@ -12,18 +12,18 @@ namespace BaseApi.Services
         private readonly IInventoryService _inventoryService;
         private readonly ITransactionService _transactionService;
         private readonly IStockDeliveryService _stockDeliveryService;
-        private readonly ICustomerDueService _utilityService;
+        private readonly ICustomerDueService _customerDueService;
         public StockReturnService(ApplicationContext context,
             IInventoryService inventoryService,
             ITransactionService transactionService,
             IStockDeliveryService stockDeliveryService,
-            ICustomerDueService utilityService)
+            ICustomerDueService customerDueService)
         {
             _context = context;
             _inventoryService = inventoryService;
             _transactionService = transactionService;
             _stockDeliveryService = stockDeliveryService;
-            _utilityService = utilityService;
+            _customerDueService = customerDueService;
         }
         public async Task<List<StockReturn>> CreateReturnAsync(Dictionary<int, int> stockReturns)
         {
@@ -34,6 +34,7 @@ namespace BaseApi.Services
             {
                 var delivery = await _context.Deliveries
                     .Include(i => i.Inventory)
+                        .ThenInclude(c => c.Customer)
                     .SingleOrDefaultAsync(d => d.StockDeliveryId == item.Key);
                 if (delivery == null)
                 {
@@ -62,14 +63,16 @@ namespace BaseApi.Services
                 await _transactionService.AddStockJournalRecord(TransactionCategory.Return.ToString(),
                     item.StockReturnId);
                 await _stockDeliveryService.UpdateDeliveryAsync(item.Delivery.StockDeliveryId, item.QuantityReturned);
-                if (await _utilityService.IsCustomerDue(item.Delivery.Inventory.Customer!))
-                    isCustomerDue = true;
+                if (await _customerDueService.IsCustomerDue(item.Delivery.Inventory.Customer!))
+                    isCustomerDue = true;               
             }
             var cus = stockReturnList[0].Delivery!.Inventory!.Customer;
             if (isCustomerDue)
-                await _utilityService.SetACustomerAsDue(cus!);
+                await _customerDueService.SetACustomerAsDue(cus!);
+            else
+                await _customerDueService.ResetCustomerDueStatus(cus!.CustomerId);
             await _context.SaveChangesAsync();
-            
+
             return stockReturnList;
         }
 
