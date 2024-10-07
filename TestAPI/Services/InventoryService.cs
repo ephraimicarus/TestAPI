@@ -52,11 +52,18 @@ namespace TestAPI.Services
                 throw new InvalidOperationException("Invalid quantity.");
             }
 
-            var baseInventory = await _context.BaseInventory.SingleOrDefaultAsync(bi => bi.Item!.ItemId == inventory!.Item!.ItemId);
+            var baseInventory = await _context.BaseInventory
+                .Include(bi => bi.Item)
+                .SingleOrDefaultAsync(bi => bi.Item!.ItemId == inventory!.Item!.ItemId);
 
             if (baseInventory == null)
             {
-                throw new KeyNotFoundException($"BaseInventory with ID {inventory.Item!.ItemId} not found.");
+                throw new KeyNotFoundException($"Base inventory for item with ID {inventory.Item!.ItemId} not found.");
+            }
+
+            if (category == TransactionCategory.Return.ToString() && baseInventory.QuantityStored - quantity < 0)
+            {
+                throw new InvalidOperationException($"Invalid quantity for base inventory item with ID {baseInventory.Item!.ItemId}.");
             }
 
             if (category == TransactionCategory.Delivery.ToString())
