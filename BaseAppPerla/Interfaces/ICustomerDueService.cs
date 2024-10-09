@@ -8,5 +8,6 @@ namespace BaseAppPerla.Interfaces
         Task<Customer> SetCustomersAsDue();
         Task<Customer> SetACustomerAsDue(Customer customer);
         Task<Customer> ResetCustomerDueStatus(int customerId);
+        Task<List<StockDelivery>> GetCustomerDueItems(string oib);
     }
 }

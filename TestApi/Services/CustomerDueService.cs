@@ -70,13 +70,14 @@ namespace BaseApi.Services
             return false;
         }
 
-        public async Task<List<StockDelivery>> GetCustomerDueItems(int customerId)
+        public async Task<List<StockDelivery>> GetCustomerDueItems(string oib)
         {
             var customerDeliveries = await _context.Deliveries
-                .Where(d => d.Inventory!.Customer!.CustomerId == customerId
-                && d.TransactionInfo!.DateDue.Day >= DateTime.Now.Day 
+                .Where(d => d.Inventory!.Customer!.Oib == oib
+                && d.TransactionInfo!.DateDue.Day <= DateTime.Now.AddDays(5).Day
                 && d.QuantityToReturn != 0)
                 .Include(d => d.Inventory!.Item)
+                .Include(d => d.Inventory!.Customer)
                 .Include(d => d.TransactionInfo)
                 .ToListAsync();
             return customerDeliveries;

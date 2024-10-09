@@ -13,12 +13,27 @@ namespace BaseApi.Controllers
             _customerDueService = customerDueService;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<StockDelivery>>> GetCustomerDueItems(int customerId)
+        [HttpGet("overdue")]
+        public async Task<ActionResult<List<Customer>>> GetOverdueCustomers()
         {
             try
             {
-                var customerDueItems = await _customerDueService.GetCustomerDueItems(customerId);
+                var overdueCustomers = await _customerDueService.GetOverdueCustomers();
+                return Ok(overdueCustomers);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("items")]
+        public async Task<ActionResult<List<StockDelivery>>> GetCustomerDueItems([FromQuery] string oib)
+        {
+            try
+            {
+                var customerDueItems = await _customerDueService.GetCustomerDueItems(oib);
                 return Ok(customerDueItems);
             }
             catch (Exception ex)

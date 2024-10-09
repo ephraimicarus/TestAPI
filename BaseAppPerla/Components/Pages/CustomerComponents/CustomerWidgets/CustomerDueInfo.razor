@@ -1,36 +1,42 @@
 ﻿@using BaseAppPerla.Interfaces
 @using BaseAppPerla.Models
+@inject ICustomerDueService _customerDueService;
 @inject ICustomerService _customerService;
 
 
 <MudCard>
-    <MudCardHeader>
-        <MudText Typo="Typo.h5">Detalji:</MudText>
-    </MudCardHeader>
-    @if (isLoading)
-    {
-        <div>Dohvaćam podatke...</div>
-    }
-    else
-    {
-        <MudCardContent>
-            <MudGrid>
-                <MudItem xs="12" sm="6">
-                    <MudText><b>Name:</b> @customer.Name</MudText>
-                </MudItem>
-                <MudItem xs="12" sm="6">
-                    <MudText><b>OIB:</b> @customer.Oib</MudText>
-                </MudItem>
-                <MudItem xs="12" sm="6">
-                    <MudText><b>Email:</b> @customer.Email</MudText>
-                </MudItem>
-                <MudItem xs="12" sm="6">
-                    <MudText><b>Phone:</b> @customer.Phone</MudText>
-                </MudItem>
-                <!-- Add more items as needed -->
-            </MudGrid>
-        </MudCardContent>
-    }
+    <MudCardContent>
+        @if (isLoading)
+        {
+            <div>Dohvaćam podatke...</div>
+        }
+        else
+        {
+            <MudCard>
+                @foreach (var transactionId in customerDueDeliveries)
+                {
+                    <MudCardHeader>
+                        <MudText Typo="Typo.h5">Broj transakcije: @transactionId.First().TransactionInfo!.TransactionId</MudText>
+                    </MudCardHeader>
+                    <MudCardHeader>
+                        <MudText Typo="Typo.h6">Rok vraćanja: @transactionId.First().TransactionInfo!.DateDue.ToString("dd-MM-yyyy")</MudText>
+                    </MudCardHeader>
+                    <MudTable Items="@transactionId" Hover="true" Striped="true" Outlined="true">
+                        <HeaderContent>
+                            <MudTh>Artikl</MudTh>
+                            <MudTh>Količina</MudTh>
+                            <MudTh>Datum isporuke</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>@context.Inventory!.Item!.Description</MudTd>
+                            <MudTd>@context.QuantityToReturn</MudTd>
+                            <MudTd>@context.TransactionInfo!.TransactionDate.ToString("dd-MM-yyyy")</MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                }
+            </MudCard>
+        }
+    </MudCardContent>
     <MudCardActions>
         <MudButton Variant="Variant.Filled" Color="Color.Primary">Edit</MudButton>
         <MudButton Variant="Variant.Outlined" Color="Color.Secondary">Delete</MudButton>
@@ -40,15 +46,28 @@
 @code {
     [Parameter]
     public string? oib { get; set; }
-    private Customer customer = new();
+    private List<List<StockDelivery>> customerDueDeliveries = new();
     private bool isLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
-        customer = await _customerService.GetCustomerByOibAsync(oib!);
-        if (customer != null)
+        var stockDeliveries = await _customerDueService.GetCustomerDueItems(oib!);
+        if (stockDeliveries != null)
         {
             isLoading = false;
         }
+        customerDueDeliveries = GroupByTransactionId(stockDeliveries!);
+    }
+
+    private List<List<StockDelivery>> GroupByTransactionId(List<StockDelivery> stockDeliveries)
+    {
+        var transactionIds = stockDeliveries.Select(x => x.TransactionInfo!.TransactionId).Distinct();
+        var groupedStockDeliveries = new List<List<StockDelivery>>();
+        foreach (var transactionId in transactionIds)
+        {
+            var groupedStockDelivery = stockDeliveries.Where(x => x.TransactionInfo!.TransactionId == transactionId).ToList();
+            groupedStockDeliveries.Add(groupedStockDelivery);
+        }
+        return groupedStockDeliveries;
     }
 }

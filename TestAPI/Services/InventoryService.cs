@@ -2,7 +2,6 @@
 using BaseApi.Utility;
 using Microsoft.EntityFrameworkCore;
 using TestAPI.Data;
-using TestAPI.DTOs;
 using TestAPI.Models;
 
 namespace TestAPI.Services
@@ -47,7 +46,7 @@ namespace TestAPI.Services
                 throw new KeyNotFoundException($"Inventory with ID {inventoryId} not found.");
             }
 
-            if(category == TransactionCategory.Return.ToString() && inventory.Quantity - quantity < 0)
+            if (category == TransactionCategory.Return.ToString() && inventory.Quantity - quantity < 0)
             {
                 throw new InvalidOperationException("Invalid quantity.");
             }
@@ -61,7 +60,8 @@ namespace TestAPI.Services
                 throw new KeyNotFoundException($"Base inventory for item with ID {inventory.Item!.ItemId} not found.");
             }
 
-            if (category == TransactionCategory.Return.ToString() && baseInventory.QuantityStored - quantity < 0)
+            if (category == TransactionCategory.Return.ToString()
+                && (baseInventory.QuantityStored - quantity < 0 || baseInventory.QuantityRented - quantity < 0))
             {
                 throw new InvalidOperationException($"Invalid quantity for base inventory item with ID {baseInventory.Item!.ItemId}.");
             }
@@ -98,10 +98,10 @@ namespace TestAPI.Services
         {
             var item = await _context.Items.SingleOrDefaultAsync(i => i.ItemId == itemId);
             if (item == null)
-                return null;
+                throw new KeyNotFoundException($"Item with ID {itemId} not found.");
             var customerList = await _context.Customers.ToListAsync();
             if (customerList.Count == 0)
-                return null;
+                throw new KeyNotFoundException($"No customers found.");
             foreach (var customer in customerList)
             {
                 Inventory inventory = new()
@@ -120,5 +120,31 @@ namespace TestAPI.Services
             .Include(i => i.Customer)
             .Include(i => i.Item)
             .Where(i => i.Customer!.CustomerId == customerId).ToListAsync();
+
+        public async Task<List<BaseInventory>> GetBaseInventoryAsync()
+        {
+            var baseInventory = await _context.BaseInventory
+                .Include(bi => bi.Item)
+                .ToListAsync();
+            if (baseInventory == null)
+            {
+                throw new KeyNotFoundException($"Base inventory not found.");
+            }
+            return baseInventory;
+        }
+
+        public async Task<BaseInventory> UpdateBaseInventoryAsync(int itemId, int quantity)
+        {
+            var baseInventory = _context.BaseInventory
+                .Include(bi => bi.Item)
+                .SingleOrDefault(bi => bi.Item!.ItemId == itemId);
+            if (baseInventory == null)
+            {
+                throw new KeyNotFoundException($"Base inventory item with ID {itemId} not found.");
+            }
+            baseInventory.QuantityStored = quantity;
+            await _context.SaveChangesAsync();
+            return baseInventory;
+        }
     }
 }

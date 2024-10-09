@@ -1,7 +1,98 @@
 ﻿@page "/customers"
+@using BaseAppPerla.Components.Pages.CustomerComponents.CustomerWidgets
+@using BaseAppPerla.Interfaces
+@using BaseAppPerla.Models
+@inject ICustomerService _customerService
 
 <h3>Mušterije</h3>
 
-@code {
+<MudCard>
+    <MudCardContent>
+        @if (customersList.Count > 0)
+        {
+            <MudTable Items="customersListPaginated" RowsPerPage="5" Hover="true" Striped="true" Outlined="true">
+                <HeaderContent>
+                    <MudTh>Ime</MudTh>
+                    <MudTh>Oib</MudTh>
+                    <MudTh>Kontakt</MudTh>
+                    <MudTh>Email</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Ime">@context.Name</MudTd>
+                    <MudTd DataLabel="Oib">@context.Oib</MudTd>
+                    <MudTd DataLabel="Phone">@context.Phone</MudTd>
+                    <MudTd DataLabel="Email">@context.Email</MudTd>
+                    <MudTd DataLabel="">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCustomerDetails(context)">Detalji</MudButton>
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudPagination Count="totalPages" SelectedChanged="HandlePageChange" />
+                </PagerContent>
+            </MudTable>
+        }
+        else
+        {
+            @if (isLoading)
+            {
+                <div>Provjeravam...</div>
+            }
+            else
+            {
+                <div>Nemate mušterija!</div>
+            }
+        }
+    </MudCardContent>
+</MudCard>
 
+@if (showCustomerInfo)
+{
+    <div style="margin-top: 1rem;">
+        <CustomerDueInfo oib="@SelectedCustomer!.Oib"></CustomerDueInfo>
+    </div>
+}
+
+@code {
+    private List<Customer> customersList = new();
+    private List<Customer> customersListPaginated = new();
+    private Customer? SelectedCustomer;
+
+    private bool showCustomerInfo = false;
+    private bool isLoading = true;
+
+    private int totalPages, rowsPerPage = 5, currentPage = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        customersList = await _customerService.GetAllCustomersAsync();
+        if (customersList != null)
+        {
+            isLoading = false;
+        }
+        CalculateTotalPages();
+        UpdatePagedCustomers();
+    }
+
+    private void CalculateTotalPages()
+    {
+        totalPages = (int)Math.Ceiling(customersList.Count / (double)rowsPerPage);
+    }
+
+    private void UpdatePagedCustomers()
+    {
+        int startIndex = (currentPage - 1) * rowsPerPage;
+        customersListPaginated = customersList.Skip(startIndex).Take(rowsPerPage).ToList();
+    }
+
+    private void HandlePageChange(int newPage)
+    {
+        currentPage = newPage;
+        UpdatePagedCustomers();
+    }
+
+    private void ShowCustomerDetails(Customer customer)
+    {
+        SelectedCustomer = customer;
+        showCustomerInfo = true;
+    }
 }

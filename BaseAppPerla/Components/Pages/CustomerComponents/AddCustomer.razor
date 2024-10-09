@@ -1,0 +1,37 @@
+﻿@page "/addcustomer"
+@using BaseAppPerla.Interfaces
+@using BaseAppPerla.Models
+@inject ICustomerService _customerService
+
+<h3>Mušterije</h3>
+
+<MudCard>
+    <MudCardContent>
+        <MudForm @ref="form" @valid="isValid">
+            <MudTextField @bind-Value="customer.Name" Label="Ime i prezime/naziv" Required="true" />
+            <MudTextField @bind-Value="customer.Oib" Label="Oib" Required="true" MaxLength="11" />
+            <MudTextField @bind-Value="customer.Email" Label="Email" Required="false" />
+            <MudTextField @bind-Value="customer.Phone" Label="Phone Number" Required="false" />
+            <MudTextField @bind-Value="customer.Address" Label="Address" Required="false" />
+        </MudForm>
+    </MudCardContent>
+    <MudCardActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="CreateCustomer" Disabled="!isValid">Add Customer</MudButton>
+    </MudCardActions>
+</MudCard>
+
+@code {
+    private MudForm form;
+    private bool isValid;
+    private Customer customer = new();
+
+    private async Task CreateCustomer()
+    {
+        await form.Validate();
+        if (isValid)
+        {
+            await _customerService.CreateCustomerAsync(customer);
+            customer = new Customer();
+        }
+    }
+}
