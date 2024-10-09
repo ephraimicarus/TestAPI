@@ -21,9 +21,9 @@ namespace TestAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<BaseInventory>>> GetAllInventories([FromQuery] int customerId)
+        public async Task<ActionResult<List<BaseInventory>>> GetAllInventories([FromQuery] int id)
         {
-            var inventories = await _inventoryService.GetInventoriesAsync(customerId);
+            var inventories = await _inventoryService.GetInventoriesAsync(id);
             return Ok(inventories);
         }
 

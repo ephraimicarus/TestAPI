@@ -3,33 +3,44 @@
 @using BaseAppPerla.Interfaces
 @using BaseAppPerla.Models
 @inject ICustomerService _customerService
+@inject NavigationManager Navigation
 
-<h3>Mušterije</h3>
 
 <MudCard>
     <MudCardContent>
+        @if (showCustomerTable)
+        {
+            <h3 class="mb-3">Mušterije</h3>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ResetCustomerInfo()" Style="width: 160px; margin-top: 4px;">Prikaži mušterije</MudButton>
+        }
         @if (customersList.Count > 0)
         {
-            <MudTable Items="customersListPaginated" RowsPerPage="5" Hover="true" Striped="true" Outlined="true">
-                <HeaderContent>
-                    <MudTh>Ime</MudTh>
-                    <MudTh>Oib</MudTh>
-                    <MudTh>Kontakt</MudTh>
-                    <MudTh>Email</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Ime">@context.Name</MudTd>
-                    <MudTd DataLabel="Oib">@context.Oib</MudTd>
-                    <MudTd DataLabel="Phone">@context.Phone</MudTd>
-                    <MudTd DataLabel="Email">@context.Email</MudTd>
-                    <MudTd DataLabel="">
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCustomerDetails(context)">Detalji</MudButton>
-                    </MudTd>
-                </RowTemplate>
-                <PagerContent>
-                    <MudPagination Count="totalPages" SelectedChanged="HandlePageChange" />
-                </PagerContent>
-            </MudTable>
+            @if (showCustomerTable)
+            {
+                <MudTable Items="customersListPaginated" RowsPerPage="5" Hover="true" Striped="true" Outlined="true">
+                    <HeaderContent>
+                        <MudTh>Ime</MudTh>
+                        <MudTh>Oib</MudTh>
+                        <MudTh>Kontakt</MudTh>
+                        <MudTh>Email</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Ime">@context.Name</MudTd>
+                        <MudTd DataLabel="Oib">@context.Oib</MudTd>
+                        <MudTd DataLabel="Phone">@context.Phone</MudTd>
+                        <MudTd DataLabel="Email">@context.Email</MudTd>
+                        <MudTd DataLabel="">
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCustomerDetails(context)">Detalji</MudButton>
+                        </MudTd>
+                    </RowTemplate>
+                    <PagerContent>
+                        <MudPagination Count="totalPages" SelectedChanged="HandlePageChange" />
+                    </PagerContent>
+                </MudTable>
+            }
         }
         else
         {
@@ -48,9 +59,12 @@
 @if (showCustomerInfo)
 {
     <div style="margin-top: 1rem;">
-        <CustomerDueInfo oib="@SelectedCustomer!.Oib"></CustomerDueInfo>
+        <CustomerInfo CustomerId="SelectedCustomer!.CustomerId" CustomerName="@SelectedCustomer.Name"></CustomerInfo>
     </div>
 }
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="NavigateToAddCustomer" Style="width: 160px; margin-top: 4px;">Dodaj mušteriju</MudButton>
+
 
 @code {
     private List<Customer> customersList = new();
@@ -58,6 +72,7 @@
     private Customer? SelectedCustomer;
 
     private bool showCustomerInfo = false;
+    private bool showCustomerTable = true;
     private bool isLoading = true;
 
     private int totalPages, rowsPerPage = 5, currentPage = 1;
@@ -93,6 +108,16 @@
     private void ShowCustomerDetails(Customer customer)
     {
         SelectedCustomer = customer;
+        showCustomerTable = false;
         showCustomerInfo = true;
+    }
+    private void ResetCustomerInfo()
+    {
+        showCustomerInfo = false;
+        showCustomerTable = true;
+    }
+    private void NavigateToAddCustomer()
+    {
+        Navigation.NavigateTo("/addcustomer");
     }
 }

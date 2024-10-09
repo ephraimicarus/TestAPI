@@ -1,5 +1,54 @@
-﻿<h3>Customer Info</h3>
+﻿@using BaseAppPerla.Interfaces
+@using BaseAppPerla.Models
+@inject IInventoryService _inventoryService;
+@inject ICustomerService _customerService;
+
+<MudCard>
+    <MudCardContent>
+        @if (isLoading)
+        {
+            <div>Dohvaćam podatke...</div>
+        }
+        else
+        {
+            <MudCard>
+                <MudCardHeader>
+                    <MudText Typo="Typo.h5">@CustomerName lager lista</MudText>
+                </MudCardHeader>
+                <MudTable Items="@customerInventories" Hover="true" Striped="true" Outlined="true">
+                    <HeaderContent>
+                        <MudTh>Artikl</MudTh>
+                        <MudTh>Količina</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>@context.Item!.Description</MudTd>
+                        <MudTd>@context.Quantity</MudTd>
+                    </RowTemplate>
+                </MudTable>                
+            </MudCard>
+        }
+    </MudCardContent>
+    <MudCardActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary">Edit</MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Secondary">Delete</MudButton>
+    </MudCardActions>
+</MudCard>
 
 @code {
+    [Parameter]
+    public int CustomerId { get; set; }
+    [Parameter]
+    public string? CustomerName { get; set; }
+    private List<Inventory> customerInventories = new();
+    private bool isLoading = true;
 
+    protected override async Task OnInitializedAsync()
+    {
+        var inventories = await _inventoryService.GetInventoriesAsync(CustomerId);
+        if (inventories != null)
+        {
+            isLoading = false;
+        }
+        customerInventories = inventories!;
+    }
 }
