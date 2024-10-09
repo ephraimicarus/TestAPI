@@ -82,10 +82,10 @@ namespace TestAPI.Services
 					return null;
 				}
 			}
-			catch
+            catch
 			{
 				throw;
 			}
 		}
-	}
+    }
 }

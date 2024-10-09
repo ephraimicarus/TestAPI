@@ -3,37 +3,51 @@
 @inject IInventoryService _inventoryService;
 @inject ICustomerService _customerService;
 
-<MudCard>
-    <MudCardContent>
-        @if (isLoading)
-        {
-            <div>Dohvaćam podatke...</div>
-        }
-        else
-        {
-            <MudCard>
-                <MudCardHeader>
-                    <MudText Typo="Typo.h5">@CustomerName lager lista</MudText>
-                </MudCardHeader>
-                <MudTable Items="@customerInventories" Hover="true" Striped="true" Outlined="true">
-                    <HeaderContent>
-                        <MudTh>Artikl</MudTh>
-                        <MudTh>Količina</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd>@context.Item!.Description</MudTd>
-                        <MudTd>@context.Quantity</MudTd>
-                    </RowTemplate>
-                </MudTable>                
-            </MudCard>
-        }
-    </MudCardContent>
-    <MudCardActions>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary">Edit</MudButton>
-        <MudButton Variant="Variant.Outlined" Color="Color.Secondary">Delete</MudButton>
-    </MudCardActions>
-</MudCard>
+@if (!showEditCustomer)
+{
+    <MudCard>
+        <MudCardContent>
+            @if (isLoading)
+            {
+                <div>Dohvaćam podatke...</div>
+            }
+            else
+            {
+                <MudCard>
+                    <MudCardHeader>
+                        <MudText Typo="Typo.h5">@CustomerName </MudText>
+                        <MudCardActions>
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       Style="margin-right: 8px; margin-left: 8px"
+                                       OnClick="ShowEditCustomer">
+                                Edit
+                            </MudButton>
+                            <MudButton Variant="Variant.Outlined" Color="Color.Secondary">Delete</MudButton>
+                        </MudCardActions>
+                    </MudCardHeader>
+                    <MudTable Items="@customerInventories" Hover="true" Striped="true" Outlined="true">
+                        <HeaderContent>
+                            <MudTh>Artikl</MudTh>
+                            <MudTh>Količina</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>@context.Item!.Description</MudTd>
+                            <MudTd>@context.Quantity</MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudCard>
+            }
+        </MudCardContent>
+    </MudCard>
+}
+@if (showEditCustomer)
+{
+    <div style="margin-top: 1rem;">
+        <EditCustomer CustomerId="CustomerId"></EditCustomer>
+    </div>
 
+}
 @code {
     [Parameter]
     public int CustomerId { get; set; }
@@ -41,6 +55,7 @@
     public string? CustomerName { get; set; }
     private List<Inventory> customerInventories = new();
     private bool isLoading = true;
+    private bool showEditCustomer = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -50,5 +65,13 @@
             isLoading = false;
         }
         customerInventories = inventories!;
+    }
+    private void ShowEditCustomer()
+    {
+        showEditCustomer = true;
+    }
+    private void ResetEditCustomer()
+    {
+        showEditCustomer = false;
     }
 }

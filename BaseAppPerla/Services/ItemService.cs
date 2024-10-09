@@ -5,90 +5,26 @@ using System.Net.Http.Json;
 
 namespace BaseAppPerla.Services
 {
-    public class CustomerService : ICustomerService
+    public class ItemService : IItemService
     {
         private readonly HttpClient _httpClient;
-        public CustomerService(HttpClient httpClient)
+
+        public ItemService(HttpClient httpClient)
         {
             _httpClient = httpClient;
             _httpClient.BaseAddress = new Uri("https://localhost:44398/api");
         }
 
-        public async Task<Customer> CreateCustomerAsync(Customer customer)
-        {
-            var response = await _httpClient.PostAsJsonAsync($"{_httpClient.BaseAddress}/Customer", customer);
-            if (response.IsSuccessStatusCode)
-            {
-                var responseContent = await response.Content.ReadAsStringAsync();
-                var createdCustomer = JsonConvert.DeserializeObject<Customer>(responseContent);
-                return createdCustomer!;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        public Task<Customer> DeleteCustomerAsync(Customer customer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<List<Customer>> GetAllCustomersAsync()
+        public async Task<Item> CreateItemAsync(Item item)
         {
             try
             {
-                var response = await _httpClient.GetAsync($"{_httpClient.BaseAddress}/Customer");
+                var response = await _httpClient.PostAsJsonAsync("Item", item);
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
-                    var customers = JsonConvert.DeserializeObject<List<Customer>>(content);
-                    return customers!;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            catch (Exception ex)
-            {
-                // Handle exceptions (e.g., network issues)
-                Console.WriteLine($"Error fetching customers: {ex.Message}");
-                return null;
-            }
-        }
-
-        public async Task<Customer> GetCustomerByOibAsync(string oib)
-        {
-            try
-            {
-                var response = await _httpClient.GetAsync($"{_httpClient.BaseAddress}/Customer/oib?oib={oib}");
-                if (response.IsSuccessStatusCode)
-                {
-                    var content = await response.Content.ReadAsStringAsync();
-                    var customer = JsonConvert.DeserializeObject<Customer>(content);
-                    return customer!;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-        }
-        public async Task<Customer> GetCustomerByIdAsync(int id)
-        {
-            try
-            {
-                var response = await _httpClient.GetAsync($"{_httpClient.BaseAddress}/Customer/id?id={id}");
-                if (response.IsSuccessStatusCode)
-                {
-                    var content = await response.Content.ReadAsStringAsync();
-                    var customer = JsonConvert.DeserializeObject<Customer>(content);
-                    return customer!;
+                    var createdItem = JsonConvert.DeserializeObject<Item>(content);
+                    return createdItem!;
                 }
                 else
                 {
@@ -101,16 +37,16 @@ namespace BaseAppPerla.Services
             }
         }
 
-        public async Task<Customer> UpdateCustomerAsync(Customer customer)
+        public async Task<Item> DeleteItemAsync(int id)
         {
             try
             {
-                var response = await _httpClient.PutAsJsonAsync($"{_httpClient.BaseAddress}/Customer", customer);
+                var response = await _httpClient.DeleteAsync($"Item/{id}");
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
-                    var customerToUpdate = JsonConvert.DeserializeObject<Customer>(content);
-                    return customerToUpdate!;
+                    var deletedItem = JsonConvert.DeserializeObject<Item>(content);
+                    return deletedItem!;
                 }
                 else
                 {
@@ -122,5 +58,72 @@ namespace BaseAppPerla.Services
                 return null;
             }
         }
+
+        public async Task<List<Item>> GetAllItemsAsync()
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync("Item");
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var items = JsonConvert.DeserializeObject<List<Item>>(content);
+                    return items!;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public async Task<Item> GetItemByIdAsync(int id)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_httpClient.BaseAddress}/Item/id?id={id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var item = JsonConvert.DeserializeObject<Item>(content);
+                    return item!;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public async Task<Item> UpdateItemAsync(Item item)
+        {
+            try
+            {
+                var response = await _httpClient.PutAsJsonAsync($"{_httpClient.BaseAddress}/Item", item);
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var updatedItem = JsonConvert.DeserializeObject<Item>(content);
+                    return updatedItem!;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
     }
 }

@@ -45,7 +45,7 @@ namespace TestAPI.Controllers
 		}
 
 		[HttpGet]
-		[Route("id")]
+		[Route("oib")]
 		public async Task<ActionResult<Customer>> GetCustomerByOib(string oib)
 		{
 			try
@@ -60,8 +60,24 @@ namespace TestAPI.Controllers
 			}
 		}
 
-		[HttpPut]
-		public async Task<ActionResult<Customer>> UpdateCustomerAsync(Customer customer)
+        [HttpGet]
+        [Route("id")]
+        public async Task<ActionResult<Customer>> GetCustomerById(int id)
+        {
+            try
+            {
+                var customer = await _customerService.GetCustomerByIdAsync(id);
+                return Ok(customer);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut]
+		public async Task<ActionResult<Customer>> UpdateCustomerAsync([FromBody] Customer customer)
 		{
 			try
 			{

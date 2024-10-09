@@ -1,6 +1,123 @@
 ﻿@page "/inventory"
-<h3>Inventura</h3>
+@using BaseAppPerla.Components.Pages.InventoryComponents.InventoryWidgets
+@using BaseAppPerla.Interfaces
+@using BaseAppPerla.Models
+@inject IInventoryService _inventoryService
+@inject NavigationManager Navigation
+
+
+<MudCard>
+    <MudCardContent>
+        @if (showInventoryTable)
+        {
+            <h3 class="mb-3">Inventura</h3>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ResetInventoryInfo()" Style="width: 160px; margin-top: 4px;">Prikaži stanja</MudButton>
+        }
+        @if (inventoryList.Count > 0)
+        {
+            @if (showInventoryTable)
+            {
+                <MudTable Items="inventoryListPaginated" RowsPerPage="rowsPerPage" Hover="true" Striped="true" Outlined="true">
+                    <HeaderContent>
+                        <MudTh>Artikl</MudTh>
+                        <MudTh>Pohranjeno</MudTh>
+                        <MudTh>Izdano</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Artikl">@context.Item!.ItemId</MudTd>
+                        <MudTd DataLabel="Pohranjeno">@context.QuantityStored</MudTd>
+                        <MudTd DataLabel="Izdano">@context.QuantityRented</MudTd>
+                        <MudTd DataLabel="">
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowInventoryDetails(context.Item!.ItemId)">Ažuriraj</MudButton>
+                        </MudTd>
+                    </RowTemplate>
+                    <PagerContent>
+                        <MudPagination Count="totalPages" SelectedChanged="HandlePageChange" />
+                    </PagerContent>
+                </MudTable>
+            }
+        }
+        else
+        {
+            @if (isLoading)
+            {
+                <div>Provjeravam...</div>
+            }
+            else
+            {
+                <div>Nemate artikala u lageru!</div>
+            }
+        }
+    </MudCardContent>
+</MudCard>
+
+@if (showInventoryInfo)
+{
+    <div style="margin-top: 1rem;">
+        <EditInventory ItemId="@SelectedInventory" />
+    </div>
+}
+
+<div style="margin-top: 2rem;">
+    <MudButton Disabled="showInventoryInfo" Variant="Variant.Filled" Color="Color.Primary" OnClick="NavigateToAddItem" Style="width: 160px; margin-top: 4px;">Dodaj artikl</MudButton>
+</div> 
+
 
 @code {
+    private List<BaseInventory> inventoryList = new();
+    private List<BaseInventory> inventoryListPaginated = new();
+    private int SelectedInventory;
 
+    private bool showInventoryInfo = false;
+    private bool showInventoryTable = true;
+    private bool isLoading = true;
+
+    private int totalPages, rowsPerPage = 10, currentPage = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        inventoryList = await _inventoryService.GetBaseInventoryAsync();
+        if (inventoryList != null)
+        {
+            isLoading = false;
+        }
+        CalculateTotalPages();
+        UpdatePagedInventories();
+    }
+
+    private void CalculateTotalPages()
+    {
+        totalPages = (int)Math.Ceiling(inventoryList.Count / (double)rowsPerPage);
+    }
+
+    private void UpdatePagedInventories()
+    {
+        int startIndex = (currentPage - 1) * rowsPerPage;
+        inventoryListPaginated = inventoryList.Skip(startIndex).Take(rowsPerPage).ToList();
+    }
+
+    private void HandlePageChange(int newPage)
+    {
+        currentPage = newPage;
+        UpdatePagedInventories();
+    }
+
+    private void ShowInventoryDetails(int id)
+    {
+        SelectedInventory = id;
+        showInventoryTable = false;
+        showInventoryInfo = true;
+    }
+    private void ResetInventoryInfo()
+    {
+        showInventoryInfo = false;
+        showInventoryTable = true;
+    }
+    private void NavigateToAddItem()
+    {
+        Navigation.NavigateTo("/additem");
+    }
 }

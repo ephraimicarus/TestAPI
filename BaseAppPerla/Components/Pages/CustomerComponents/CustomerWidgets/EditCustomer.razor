@@ -1,0 +1,34 @@
+﻿@using BaseAppPerla.Interfaces
+@using BaseAppPerla.Models
+@inject ICustomerService _customerService
+
+<MudCard>
+    <MudCardContent>
+        <MudForm>
+            <MudTextField @bind-Value="customer.Name" Label="Ime i prezime/naziv" Required="true" />
+            <MudTextField @bind-Value="customer.Oib" Label="Oib" Required="true" MaxLength="11" />
+            <MudTextField @bind-Value="customer.Email" Label="Email" Required="false" />
+            <MudTextField @bind-Value="customer.Phone" Label="Phone Number" Required="false" />
+            <MudTextField @bind-Value="customer.Address" Label="Address" Required="false" />
+        </MudForm>
+    </MudCardContent>
+    <MudCardActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="UpdateCustomer">Ažuriraj</MudButton>
+    </MudCardActions>
+</MudCard>
+
+@code {
+    [Parameter]
+    public int CustomerId { get; set; }
+    private Customer customer = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        customer = await _customerService.GetCustomerByIdAsync(CustomerId);
+    }
+
+    private async Task UpdateCustomer()
+    {
+        await _customerService.UpdateCustomerAsync(customer);
+    }
+}

@@ -1,0 +1,32 @@
+﻿@using BaseAppPerla.Interfaces
+@using BaseAppPerla.Models
+@inject ICustomerService _customerService
+@inject IItemService _itemService
+
+<MudCard>
+    <MudCardContent>
+        <MudForm>
+            <MudTextField @bind-Value="item.Description" Label="Naziv artikla" Required="true" />
+        </MudForm>
+    </MudCardContent>
+    <MudCardActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="UpdateItem">Ažuriraj</MudButton>
+    </MudCardActions>
+</MudCard>
+
+@code {
+    [Parameter]
+    public int ItemId { get; set; }
+    private Item item = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        item = await _itemService.GetItemByIdAsync(ItemId);
+    }
+
+    private async Task UpdateItem()
+    {
+        await _itemService.UpdateItemAsync(item);
+    }
+}

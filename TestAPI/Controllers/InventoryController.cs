@@ -28,7 +28,7 @@ namespace TestAPI.Controllers
         }
 
         [HttpGet]
-        [Route("api/[controller]/baseinventory")]
+        [Route("baseinventory")]
         public async Task<ActionResult<List<Inventory>>> GetBaseInventory()
         {
             var baseInventory = await _inventoryService.GetBaseInventoryAsync();
@@ -43,7 +43,7 @@ namespace TestAPI.Controllers
         }
 
         [HttpPut]
-        [Route("api/[controller]/baseinventory")]
+        [Route("baseinventory")]
         public async Task<ActionResult<Inventory>> UpdateBaseInventory(int itemId, int quantity)
         {
             var newBaseInventory = await _inventoryService.UpdateBaseInventoryAsync(itemId, quantity);

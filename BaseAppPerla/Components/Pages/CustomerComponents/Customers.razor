@@ -62,8 +62,9 @@
         <CustomerInfo CustomerId="SelectedCustomer!.CustomerId" CustomerName="@SelectedCustomer.Name"></CustomerInfo>
     </div>
 }
-
-<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="NavigateToAddCustomer" Style="width: 160px; margin-top: 4px;">Dodaj mušteriju</MudButton>
+<div style="margin-top: 2rem;">
+    <MudButton Disabled="showCustomerInfo" Variant="Variant.Filled" Color="Color.Primary" OnClick="NavigateToAddCustomer" Style="width: 160px; margin-top: 4px;">Dodaj mušteriju</MudButton>
+</div>
 
 
 @code {

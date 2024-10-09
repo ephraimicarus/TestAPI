@@ -56,6 +56,7 @@ namespace TestAPI.Services
         public async Task<List<Customer>> GetAllCustomersAsync() => await _context.Customers.ToListAsync();
 
         public async Task<Customer> GetCustomerByOibAsync(string oib) => await _context.Customers.SingleAsync(c => c.Oib == oib);
+        public async Task<Customer> GetCustomerByIdAsync(int id) => await _context.Customers.SingleAsync(c => c.CustomerId == id);
 
         public async Task<Customer> UpdateCustomerAsync(Customer customer)
         {
