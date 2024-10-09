@@ -1,6 +1,27 @@
 ﻿@page "/additem"
-<h3>AddInventory</h3>
+
+@using BaseAppPerla.Interfaces
+@using BaseAppPerla.Models
+@inject IItemService _itemService
+<h3>Artikli</h3>
+
+<MudCard>
+    <MudCardContent>
+        <MudForm>
+            <MudTextField @bind-Value="item.Description" Label="Opis" Required="true" />
+        </MudForm>
+    </MudCardContent>
+    <MudCardActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="CreateCustomer">Dodaj artikl</MudButton>
+    </MudCardActions>
+</MudCard>
 
 @code {
+    private Item item = new();
 
+    private async Task CreateCustomer()
+    {
+        await _itemService.CreateItemAsync(item);
+        item = new Item();
+    }
 }

@@ -2,6 +2,7 @@
 using BaseAppPerla.Models;
 using Newtonsoft.Json;
 using System.Net.Http.Json;
+using System.Text;
 
 namespace BaseAppPerla.Services
 {
@@ -19,7 +20,9 @@ namespace BaseAppPerla.Services
         {
             try
             {
-                var response = await _httpClient.PostAsJsonAsync("Item", item);
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(item), Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync($"{_httpClient.BaseAddress}/Item", jsonContent);
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
@@ -107,7 +110,8 @@ namespace BaseAppPerla.Services
         {
             try
             {
-                var response = await _httpClient.PutAsJsonAsync($"{_httpClient.BaseAddress}/Item", item);
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(item), Encoding.UTF8, "application/json");
+                var response = await _httpClient.PutAsync($"{_httpClient.BaseAddress}/Item", jsonContent);
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();

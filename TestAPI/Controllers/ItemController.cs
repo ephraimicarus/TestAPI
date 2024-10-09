@@ -6,18 +6,18 @@ namespace TestAPI.Controllers
 {
     [Route("api/[controller]")]
     public class ItemController : Controller
-	{
-		private readonly IItemService _itemService;
+    {
+        private readonly IItemService _itemService;
 
-		public ItemController(IItemService itemService)
-		{
-			_itemService = itemService;
-		}
-		[HttpPut]
+        public ItemController(IItemService itemService)
+        {
+            _itemService = itemService;
+        }
+        [HttpPut]
         public async Task<ActionResult<Item>> UpdateItemAsync([FromBody] Item item)
-		{
-			try
-			{
+        {
+            try
+            {
                 var updatedItem = await _itemService.UpdateItemAsync(item);
                 return Ok(updatedItem);
             }
@@ -29,26 +29,26 @@ namespace TestAPI.Controllers
 
         }
         [HttpPost]
-		public async Task<ActionResult<Item>> CreateItemAsync([FromBody] Item item)
-		{
-			var newItem= await _itemService.CreateItemAsync(item);
-			return Ok(newItem);
-		}
+        public async Task<ActionResult<Item>> CreateItemAsync([FromBody] Item item)
+        {
+            var newItem = await _itemService.CreateItemAsync(item);
+            return Ok(newItem);
+        }
 
-		[HttpGet]
-		public async Task<ActionResult<List<Item>>> GetAllItemsAsync()
-		{
-			try
-			{
-				var items = await _itemService.GetAllItemsAsync();
-				return Ok(items);
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine(ex);
-				return BadRequest(ex.Message);
-			}
-		}
+        [HttpGet]
+        public async Task<ActionResult<List<Item>>> GetAllItemsAsync()
+        {
+            try
+            {
+                var items = await _itemService.GetAllItemsAsync();
+                return Ok(items);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(ex.Message);
+            }
+        }
 
         [HttpGet]
         [Route("id")]
@@ -67,18 +67,18 @@ namespace TestAPI.Controllers
         }
 
         [HttpDelete]
-		public async Task<ActionResult<Item>> DeleteItemAsync(int id)
-		{
-			try
-			{
-				var deletedItem = await _itemService.DeleteItemAsync(id);
-				return Ok(deletedItem);
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine(ex);
-				return BadRequest(ex.Message);
-			}
-		}
-	}
+        public async Task<ActionResult<Item>> DeleteItemAsync(int id)
+        {
+            try
+            {
+                var deletedItem = await _itemService.DeleteItemAsync(id);
+                return Ok(deletedItem);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(ex.Message);
+            }
+        }
+    }
 }

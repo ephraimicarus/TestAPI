@@ -44,9 +44,9 @@ namespace TestAPI.Controllers
 
         [HttpPut]
         [Route("baseinventory")]
-        public async Task<ActionResult<Inventory>> UpdateBaseInventory(int itemId, int quantity)
+        public async Task<ActionResult<Inventory>> UpdateBaseInventory([FromBody] BaseInventory inventory)
         {
-            var newBaseInventory = await _inventoryService.UpdateBaseInventoryAsync(itemId, quantity);
+            var newBaseInventory = await _inventoryService.UpdateBaseInventoryAsync(inventory);
             return Ok(newBaseInventory);
         }
     }

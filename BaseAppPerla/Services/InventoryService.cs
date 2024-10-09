@@ -2,6 +2,7 @@
 using BaseAppPerla.Models;
 using Newtonsoft.Json;
 using System.Net.Http.Json;
+using System.Text;
 
 namespace BaseAppPerla.Services
 {
@@ -59,11 +60,13 @@ namespace BaseAppPerla.Services
             }
         }
 
-        public async Task<BaseInventory> UpdateBaseInventoryAsync(int itemId, int quantity)
+        public async Task<BaseInventory> UpdateBaseInventoryAsync(BaseInventory inventory)
         {
             try
             {
-                var response = await _httpClient.PutAsJsonAsync($"{_httpClient.BaseAddress}/Inventory/Base/{itemId}", new { quantity });
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(inventory), Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PutAsync($"{_httpClient.BaseAddress}/Inventory/baseinventory", jsonContent);
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();

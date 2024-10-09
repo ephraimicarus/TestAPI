@@ -133,16 +133,17 @@ namespace TestAPI.Services
             return baseInventory;
         }
 
-        public async Task<BaseInventory> UpdateBaseInventoryAsync(int itemId, int quantity)
+        public async Task<BaseInventory> UpdateBaseInventoryAsync(BaseInventory inventory)
         {
             var baseInventory = _context.BaseInventory
                 .Include(bi => bi.Item)
-                .SingleOrDefault(bi => bi.Item!.ItemId == itemId);
+                .SingleOrDefault(bi => bi.BaseInventoryId == inventory.BaseInventoryId);
             if (baseInventory == null)
             {
-                throw new KeyNotFoundException($"Base inventory item with ID {itemId} not found.");
+                throw new KeyNotFoundException($"Base inventory item with ID  not found.");
             }
-            baseInventory.QuantityStored = quantity;
+            baseInventory.QuantityStored = inventory.QuantityStored;
+            baseInventory.QuantityRented = inventory.QuantityRented;    
             await _context.SaveChangesAsync();
             return baseInventory;
         }

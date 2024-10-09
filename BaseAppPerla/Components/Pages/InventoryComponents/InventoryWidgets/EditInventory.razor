@@ -1,12 +1,14 @@
 ﻿@using BaseAppPerla.Interfaces
 @using BaseAppPerla.Models
-@inject ICustomerService _customerService
 @inject IItemService _itemService
+@inject IInventoryService _inventoryService
 
 <MudCard>
     <MudCardContent>
         <MudForm>
             <MudTextField @bind-Value="item.Description" Label="Naziv artikla" Required="true" />
+            <MudTextField @bind-Value="BaseInventory!.QuantityStored" Label="Stanje" Required="true" />
+            <MudTextField @bind-Value="BaseInventory!.QuantityRented" Label="Izdano" Required="true" />
         </MudForm>
     </MudCardContent>
     <MudCardActions>
@@ -16,17 +18,17 @@
 
 @code {
     [Parameter]
-    public int ItemId { get; set; }
+    public BaseInventory? BaseInventory { get; set; }
     private Item item = new();
-
 
     protected override async Task OnInitializedAsync()
     {
-        item = await _itemService.GetItemByIdAsync(ItemId);
+        item = await _itemService.GetItemByIdAsync(BaseInventory!.Item!.ItemId);
     }
 
     private async Task UpdateItem()
     {
         await _itemService.UpdateItemAsync(item);
+        await _inventoryService.UpdateBaseInventoryAsync(BaseInventory!);
     }
 }

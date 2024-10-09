@@ -10,6 +10,6 @@ namespace BaseApi.Interfaces
         Task<Item> ExpandInventory(int itemId);
         Task<BaseInventory> AddItemToBaseInventory(Item item);
         Task<List<BaseInventory>> GetBaseInventoryAsync();
-        Task<BaseInventory> UpdateBaseInventoryAsync(int itemId, int quantity);
+        Task<BaseInventory> UpdateBaseInventoryAsync(BaseInventory inventory);
     }
 }
