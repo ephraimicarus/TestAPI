@@ -11,5 +11,6 @@ namespace BaseApi.Models
         public string? Description { get; set; }
         public DateTime TransactionDate { get; set; } = DateTime.Now;
         public DateTime DateDue { get; set; }
+        public bool IsActive { get; set; } = true;
     }
 }

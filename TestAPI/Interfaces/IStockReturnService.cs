@@ -7,5 +7,6 @@ namespace BaseApi.Interfaces
     {
         Task<List<StockReturn>> CreateReturnAsync(Dictionary<int, int> stockReturns);
         Task<StockReturn> UpdateReturnAsync(StockReturn transaction);
+        Task<List<StockReturn>> GetAllStockReturnsAsync();
     }
 }

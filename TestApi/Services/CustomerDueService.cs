@@ -74,7 +74,7 @@ namespace BaseApi.Services
         {
             var customerDeliveries = await _context.Deliveries
                 .Where(d => d.Inventory!.Customer!.Oib == oib
-                && d.TransactionInfo!.DateDue.Day <= DateTime.Now.AddDays(5).Day
+                && d.TransactionInfo!.DateDue.Day <= DateTime.Now.Day
                 && d.QuantityToReturn != 0)
                 .Include(d => d.Inventory!.Item)
                 .Include(d => d.Inventory!.Customer)

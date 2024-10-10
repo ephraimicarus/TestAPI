@@ -9,11 +9,11 @@
 <MudCard>
     <MudCardContent>
         <MudForm>
-            <MudTextField @bind-Value="customer.Name" Label="Ime i prezime/naziv" Required="true" />
+            <MudTextField @bind-Value="customer.Name" Label="Ime i prezime/naziv firme" Required="true" />
             <MudTextField @bind-Value="customer.Oib" Label="Oib" Required="true" MaxLength="11" />
             <MudTextField @bind-Value="customer.Email" Label="Email" Required="false" />
-            <MudTextField @bind-Value="customer.Phone" Label="Phone Number" Required="false" />
-            <MudTextField @bind-Value="customer.Address" Label="Address" Required="false" />
+            <MudTextField @bind-Value="customer.Phone" Label="Kontakt broj" Required="false" />
+            <MudTextField @bind-Value="customer.Address" Label="Adresa" Required="false" />
         </MudForm>
     </MudCardContent>
     <MudCardActions>

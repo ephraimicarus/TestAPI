@@ -1,4 +1,5 @@
 ﻿using BaseApi.Interfaces;
+using BaseApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using TestAPI.Models;
 
@@ -9,11 +10,15 @@ namespace TestAPI.Controllers
 	{
 		private readonly IStockDeliveryService _deliveryService;
 		private readonly IStockReturnService _returnService;
-		public TransactionController(IStockDeliveryService deliveryService, IStockReturnService returnService)
+		private readonly ITransactionService _transactionService;
+        public TransactionController(IStockDeliveryService deliveryService, 
+			IStockReturnService returnService,
+			ITransactionService transactionService)
 		{
 			_deliveryService = deliveryService;
 			_returnService = returnService;
-		}
+            _transactionService = transactionService;
+        }
 
 		[Route("api/[controller]/delivery")]
 		[HttpPost]
@@ -30,9 +35,9 @@ namespace TestAPI.Controllers
 			}
 		}
 
-		[Route("api/[controller]/return")]
 		[HttpPost]
-		public async Task<ActionResult<StockReturn>> CreateReturn([FromBody] Dictionary<int, int> stockReturns)
+        [Route("api/[controller]/return")]
+        public async Task<ActionResult<StockReturn>> CreateReturn([FromBody] Dictionary<int, int> stockReturns)
 		{
 			try
 			{
@@ -45,5 +50,46 @@ namespace TestAPI.Controllers
 				return BadRequest(ex.Message);
 			}
 		}
-	}
+		[HttpGet]
+		public async Task<ActionResult<List<TransactionModel>>> GetAllTransactions()
+        {
+            try
+            {
+                var transactions = await _transactionService.GetAllTransactions();
+                return Ok(transactions);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet]
+        [Route("delivery")]
+        public async Task<ActionResult<List<StockDelivery>>> GetAllDeliveries()
+        {
+            try
+            {
+                var transactions = await _transactionService.GetAllDeliveries();
+                return Ok(transactions);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet]
+        [Route("return")]
+        public async Task<ActionResult<List<StockDelivery>>> GetAllReturns()
+        {
+            try
+            {
+                var transactions = await _transactionService.GetAllReturns();
+                return Ok(transactions);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+    }
 }

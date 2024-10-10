@@ -26,14 +26,14 @@ namespace TestAPI.Services
             List<StockDelivery> deliveryList = new();
             Dictionary<Inventory, int> inventoriesToUpdate = new();
             foreach (var item in inventories)
-            {                
+            {
                 var inventory = await _context.Inventories
-                    .Include(i=>i.Item)
+                    .Include(i => i.Item)
                     .SingleOrDefaultAsync(i => i.InventoryId == item.Key);
                 var baseInventory = await _context.BaseInventory
                     .Include(i => i.Item)
                     .SingleOrDefaultAsync(bi => bi!.Item!.ItemId == inventory!.Item!.ItemId);
-                if(baseInventory!=null)
+                if (baseInventory != null)
                     validateInventoryValues.Add(baseInventory.QuantityStored - item.Value);
                 if (inventory != null)
                     inventoriesToUpdate.Add(inventory, item.Value);
@@ -64,6 +64,26 @@ namespace TestAPI.Services
                 await _context.SaveChangesAsync();
             }
             return deliveryList;
+        }
+
+        public async Task<List<StockDelivery>> GetALlStockDeliveriesAsync()
+        {
+            var stockDelivery = await _context.Deliveries
+                .Include(sd => sd.Inventory)
+                    .ThenInclude(i => i.Item)
+                .Include(sd => sd.Inventory!.Customer)
+                .Include(r => r.TransactionInfo)
+                .ToListAsync();
+            return stockDelivery;
+        }
+
+        public async Task<List<StockDelivery>> GetStockDeliveriesByTransactionIdAsync(int transactionId)
+        {
+            var delivery = await _context.Deliveries
+                .Include(d => d.Inventory)
+                .Include(d => d.TransactionInfo)
+                .Where(d => d.TransactionInfo!.TransactionId == transactionId).ToListAsync();
+            return delivery;
         }
 
         public async Task<StockDelivery> UpdateDeliveryAsync(int deliveryId, int quantity)

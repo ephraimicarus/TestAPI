@@ -30,6 +30,7 @@ namespace BaseAppPerla
             builder.Services.AddTransient<ICustomerService, CustomerService>();
             builder.Services.AddTransient<IInventoryService, InventoryService>();
             builder.Services.AddTransient<IItemService, ItemService>();
+            builder.Services.AddTransient<ITransactionService, TransactionService>();
             return builder.Build();
         }
     }

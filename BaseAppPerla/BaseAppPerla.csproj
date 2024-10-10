@@ -68,6 +68,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Components\Pages\TransactionComponents\Deliveries\" />
+      <Folder Include="Components\Pages\TransactionComponents\Returns\" />
       <Folder Include="DTOs\" />
     </ItemGroup>
 

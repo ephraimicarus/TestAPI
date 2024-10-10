@@ -1,6 +1,124 @@
 ﻿@page "/transactions"
+@using BaseAppPerla.Interfaces
+@using BaseAppPerla.Models
+@inject ITransactionService _transactionService
+@inject NavigationManager Navigation
+
 <h3>Transakcije</h3>
+<br />
+<MudCard>
+    <MudGrid>
+        <MudItem xs="12" sm="6" md="3">
+            <MudButton Style="margin: 10px" Variant="Variant.Filled" Color="Color.Primary">Kreiraj isporuku</MudButton>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudButton Style="margin: 10px" Variant="Variant.Filled" Color="Color.Primary">Kreiraj povrat</MudButton>
+        </MudItem>
+    </MudGrid>
+</MudCard>
+<br />
+
+<MudTabs>
+    <MudTabPanel Text="Isporuke">
+        <MudCard>
+            <br />
+            <MudTextField @bind-Value="searchString" Placeholder="Pretraži po imenu/nazivu firme ili OIB" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" />
+            <br />
+            <MudTable Items="@filteredDeliveryList" Hover="true" Striped="true" Outlined="true" Style="border-bottom: 2px solid #CF9FFF;">
+                <HeaderContent>
+                    <MudTh>Broj transakcije</MudTh>
+                    <MudTh>Klijent</MudTh>
+                    <MudTh>Datum isporuke</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Transakcija">@context.First().TransactionInfo?.TransactionId</MudTd>
+                    <MudTd DataLabel="Klijent">@context.First().Inventory?.Customer?.Name</MudTd>
+                    <MudTd DataLabel="Datum isporuke">@context.First().TransactionInfo?.TransactionDate.ToString("dd-MM-yyyy")</MudTd>
+                    <MudTd DataLabel="">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary">Detalji</MudButton>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+            <br />
+
+        </MudCard>
+    </MudTabPanel>
+    <MudTabPanel Text="Povrati">
+        <MudTable Items="@returnList" Hover="true" Striped="true" Outlined="true">
+            <HeaderContent>
+                <MudTh>Povrat na isporuku broj</MudTh>
+                <MudTh>Klijent</MudTh>
+                <MudTh>Datum povrata</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Povrat na isporuku broj">@context.First().Delivery?.StockDeliveryId</MudTd>
+                <MudTd DataLabel="Klijent">@context.First().Delivery?.Inventory?.Customer?.Name</MudTd>
+                <MudTd DataLabel="Datum povrata">@context.First().Delivery?.TransactionInfo?.TransactionDate</MudTd>
+                <MudTd DataLabel="">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary">Detalji</MudButton>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudTabPanel>
+    <MudTabPanel Text="Sve transakcije">
+        <MudTable Items="@transactionsList" Hover="true" Striped="true" Outlined="true">
+            <HeaderContent>
+                <MudTh>Ime</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Ime">@context.Description</MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudTabPanel>
+</MudTabs>
 
 @code {
+    private List<TransactionModel> transactionsList = new();
+    private List<List<StockDelivery>> deliveryList = new();
+    private List<List<StockReturn>> returnList = new();
+    private string searchString = string.Empty;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        transactionsList = await _transactionService.GetAllTransactions();
+        var deliveries = await _transactionService.GetAllDeliveries();
+        var returns = await _transactionService.GetAllReturns();
+        if (transactionsList != null || deliveryList != null || returnList != null)
+        {
+            isLoading = false;
+        }
+        deliveryList = GroupDeliveryByTransactionId(deliveries);
+        returnList = GroupReturnByDeliveryId(returns);
+        // CalculateTotalPages();
+        // UpdatePagedCustomers();
+    }
+
+    private List<List<StockDelivery>> GroupDeliveryByTransactionId(List<StockDelivery> stockDeliveries)
+    {
+        var transactionIds = stockDeliveries.Select(x => x.TransactionInfo!.TransactionId).Distinct();
+        var groupedStockDeliveries = new List<List<StockDelivery>>();
+        foreach (var transactionId in transactionIds)
+        {
+            var groupedStockDelivery = stockDeliveries.Where(x => x.TransactionInfo!.TransactionId == transactionId).ToList();
+            groupedStockDeliveries.Add(groupedStockDelivery);
+        }
+        return groupedStockDeliveries;
+    }
+    private List<List<StockReturn>> GroupReturnByDeliveryId(List<StockReturn> stockDeliveries)
+    {
+        var transactionIds = stockDeliveries.Select(x => x.Delivery!.StockDeliveryId).Distinct();
+        var groupedStockDeliveries = new List<List<StockReturn>>();
+        foreach (var transactionId in transactionIds)
+        {
+            var groupedStockDelivery = stockDeliveries.Where(x => x.Delivery!.StockDeliveryId == transactionId).ToList();
+            groupedStockDeliveries.Add(groupedStockDelivery);
+        }
+        return groupedStockDeliveries;
+    }
+    private IEnumerable<List<StockDelivery>> filteredDeliveryList => deliveryList
+        .Where(d => string.IsNullOrWhiteSpace(searchString)
+        || d.First().Inventory?.Customer?.Name?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true
+        || d.First().Inventory?.Customer?.Oib?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true);
 
 }
