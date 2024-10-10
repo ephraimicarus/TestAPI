@@ -5,5 +5,6 @@
         public int StockReturnId;
         public StockDelivery? Delivery;
         public int QuantityReturned;
+        public DateTime TransactionDate;
     }
 }

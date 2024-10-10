@@ -23,6 +23,7 @@
         <MudCard>
             <br />
             <MudTextField @bind-Value="searchString" Placeholder="Pretraži po imenu/nazivu firme ili OIB" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" />
+            <MudCheckBox @bind-Value="showActiveOnly" Label="Prikaži samo aktivne isporuke" />
             <br />
             <MudTable Items="@filteredDeliveryList" Hover="true" Striped="true" Outlined="true" Style="border-bottom: 2px solid #CF9FFF;">
                 <HeaderContent>
@@ -78,6 +79,7 @@
     private List<List<StockReturn>> returnList = new();
     private string searchString = string.Empty;
     private bool isLoading = true;
+    private bool showActiveOnly { get; set; } = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -105,6 +107,7 @@
         }
         return groupedStockDeliveries;
     }
+
     private List<List<StockReturn>> GroupReturnByDeliveryId(List<StockReturn> stockDeliveries)
     {
         var transactionIds = stockDeliveries.Select(x => x.Delivery!.StockDeliveryId).Distinct();
@@ -116,9 +119,10 @@
         }
         return groupedStockDeliveries;
     }
-    private IEnumerable<List<StockDelivery>> filteredDeliveryList => deliveryList
-        .Where(d => string.IsNullOrWhiteSpace(searchString)
-        || d.First().Inventory?.Customer?.Name?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true
-        || d.First().Inventory?.Customer?.Oib?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true);
 
+    private IEnumerable<List<StockDelivery>> filteredDeliveryList => deliveryList
+        .Where(d => (string.IsNullOrWhiteSpace(searchString)
+        || d.First().Inventory?.Customer?.Name?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true
+        || d.First().Inventory?.Customer?.Oib?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true)
+        && d.First().TransactionInfo?.IsActive == showActiveOnly);
 }

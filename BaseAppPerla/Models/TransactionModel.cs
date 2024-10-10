@@ -4,7 +4,8 @@
     {
         public int TransactionId;
         public string? Description;
-        public DateTime TransactionDate = DateTime.Now;
+        public DateTime TransactionDate;
         public DateTime DateDue;
+        public bool IsActive;
     }
 }
