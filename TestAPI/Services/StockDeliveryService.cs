@@ -39,8 +39,12 @@ namespace TestAPI.Services
                     inventoriesToUpdate.Add(inventory, item.Value);
             }
             if (validateInventoryValues.Min() < 0)
-                return null;
+                throw new InvalidOperationException("One or more inventory items have insufficient quantity.");
             var transaction = await _transactionService.InitiateTransaction(TransactionCategory.Delivery.ToString());
+            if (transaction == null)
+            {
+                throw new InvalidOperationException("Failed to initiate transaction.");
+            }
             foreach (var item in inventoriesToUpdate)
             {
                 StockDelivery transactionCreated = new()
@@ -55,11 +59,15 @@ namespace TestAPI.Services
                     transactionCreated.Inventory.InventoryId,
                     transactionCreated.QuantityDelivered);
                 if (updatedInventory == null)
-                    return null;
+                {
+                    throw new InvalidOperationException($"Failed to update inventory with ID {transactionCreated.Inventory.InventoryId}.");
+                }
                 var stockJournalRecordAdded = await _transactionService.AddStockJournalRecord(TransactionCategory.Delivery.ToString(),
                     transactionCreated.StockDeliveryId);
                 if (stockJournalRecordAdded == null)
-                    return null;
+                {
+                    throw new InvalidOperationException($"Failed to add stock journal record for delivery ID {transactionCreated.StockDeliveryId}.");
+                }
                 deliveryList.Add(transactionCreated);
                 await _context.SaveChangesAsync();
             }
