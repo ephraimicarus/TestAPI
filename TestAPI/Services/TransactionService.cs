@@ -105,5 +105,16 @@ namespace BaseApi.Services
             }
             return null;
         }
+
+        public async Task<List<StockDelivery>> GetStockDeliveriesByTransactionIdAsync(int transactionId)
+        {
+            var delivery = await _context.Deliveries
+                .Include(d => d.Inventory)
+                    .ThenInclude(c => c!.Customer)
+                .Include(i => i.Inventory!.Item)
+                .Include(d => d.TransactionInfo)
+                .Where(d => d.TransactionInfo!.TransactionId == transactionId).ToListAsync();
+            return delivery;
+        }
     }
 }

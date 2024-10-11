@@ -12,5 +12,6 @@ namespace BaseApi.Interfaces
         Task<TransactionModel> SetTransactionNotActive(int transactionId);
         Task<List<StockDelivery>> GetAllDeliveries();
 		Task<List<StockReturn>> GetAllReturns();
+		Task<List<StockDelivery>> GetStockDeliveriesByTransactionIdAsync(int transactionId);
     }
 }

@@ -1,5 +1,50 @@
-﻿<h3>DeliveryInfo</h3>
+﻿@using BaseAppPerla.Interfaces
+@using BaseAppPerla.Models
+@inject ITransactionService _transactionService
+@inject NavigationManager Navigation
+
+<h3>Delivery Information</h3>
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (deliveries == null)
+{
+    <p>Delivery not found.</p>
+}
+else
+{
+    <MudCard>
+        <MudCardContent>
+            <MudTable Items="deliveries">
+                <HeaderContent>
+                    <MudTh>Artikl</MudTh>
+                    <MudTh>Količina isporučena</MudTh>
+                    <MudTh>Količina za vratit</MudTh>
+                    <MudTh>Rok vraćanja</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.Inventory?.Item?.Description</MudTd>
+                    <MudTd>@context.QuantityDelivered</MudTd>
+                    <MudTd>@context.QuantityToReturn</MudTd>
+                    <MudTd>@context.TransactionInfo?.DateDue</MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudCardContent>
+    </MudCard>
+}
 
 @code {
+    [Parameter]
+    public int transactionId { get; set; }
 
+    private List<StockDelivery>? deliveries;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        deliveries = await _transactionService.GetStockDeliveriesByTransactionIdAsync(transactionId);
+        isLoading = false;
+    }
 }

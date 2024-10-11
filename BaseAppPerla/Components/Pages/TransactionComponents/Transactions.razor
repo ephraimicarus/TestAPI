@@ -1,4 +1,5 @@
 ﻿@page "/transactions"
+@using BaseAppPerla.Components.Pages.TransactionComponents.Deliveries
 @using BaseAppPerla.Interfaces
 @using BaseAppPerla.Models
 @inject ITransactionService _transactionService
@@ -21,31 +22,48 @@
 <MudTabs>
     <MudTabPanel Text="Isporuke">
         <MudCard>
+            @if (showDeliveryTable)
+            {
+                <br />
+                <MudTextField @bind-Value="SearchString" Placeholder="Pretraži po imenu/nazivu firme ili OIB" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" />
+                <MudCheckBox @bind-Value="ShowActiveOnly" Label="Prikaži samo aktivne isporuke" />
+                <br />
+                <MudTable Items="@pagedDeliveryList"
+                          Hover="true"
+                          Striped="true"
+                          Outlined="true"
+                          RowsPerPage="deliveryRowsPerPage">
+                    <HeaderContent>
+                        <MudTh>Broj transakcije</MudTh>
+                        <MudTh>Klijent</MudTh>
+                        <MudTh>Datum isporuke</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Transakcija">@context.First().TransactionInfo?.TransactionId</MudTd>
+                        <MudTd DataLabel="Klijent">@context.First().Inventory?.Customer?.Name</MudTd>
+                        <MudTd DataLabel="Datum isporuke">@context.First().TransactionInfo?.TransactionDate.ToString("dd-MM-yyyy")</MudTd>
+                        <MudTd DataLabel="">
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowDeliveryDetails(context.First())">Detalji</MudButton>
+                        </MudTd>
+                    </RowTemplate>
+                    <PagerContent>
+                        <MudPagination Count="totalDeliveryPages" SelectedChanged="HandleDeliveryPageChange" />
+                    </PagerContent>
+                </MudTable>
+            }
+            else
+            {
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ResetDeliveryInfo()" Style="width: 160px; margin-top: 4px;">Prikaži isporuke</MudButton>
+            }
+            @if (showDeliveryInfo)
+            {
+                <DeliveryInfo transactionId="selectedDelivery!.TransactionInfo!.TransactionId" />
+            }
             <br />
-            <MudTextField @bind-Value="searchString" Placeholder="Pretraži po imenu/nazivu firme ili OIB" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" />
-            <MudCheckBox @bind-Value="showActiveOnly" Label="Prikaži samo aktivne isporuke" />
-            <br />
-            <MudTable Items="@filteredDeliveryList" Hover="true" Striped="true" Outlined="true" Style="border-bottom: 2px solid #CF9FFF;">
-                <HeaderContent>
-                    <MudTh>Broj transakcije</MudTh>
-                    <MudTh>Klijent</MudTh>
-                    <MudTh>Datum isporuke</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Transakcija">@context.First().TransactionInfo?.TransactionId</MudTd>
-                    <MudTd DataLabel="Klijent">@context.First().Inventory?.Customer?.Name</MudTd>
-                    <MudTd DataLabel="Datum isporuke">@context.First().TransactionInfo?.TransactionDate.ToString("dd-MM-yyyy")</MudTd>
-                    <MudTd DataLabel="">
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary">Detalji</MudButton>
-                    </MudTd>
-                </RowTemplate>
-            </MudTable>
-            <br />
-
         </MudCard>
     </MudTabPanel>
     <MudTabPanel Text="Povrati">
-        <MudTable Items="@returnList" Hover="true" Striped="true" Outlined="true">
+        <MudTable Items="@pagedReturnList" Hover="true" Striped="true" Outlined="true">
             <HeaderContent>
                 <MudTh>Povrat na isporuku broj</MudTh>
                 <MudTh>Klijent</MudTh>
@@ -59,10 +77,13 @@
                     <MudButton Variant="Variant.Filled" Color="Color.Primary">Detalji</MudButton>
                 </MudTd>
             </RowTemplate>
+            <PagerContent>
+                <MudPagination Count="totalReturnPages" SelectedChanged="HandleReturnPageChange" />
+            </PagerContent>
         </MudTable>
     </MudTabPanel>
     <MudTabPanel Text="Sve transakcije">
-        <MudTable Items="@transactionsList" Hover="true" Striped="true" Outlined="true">
+        <MudTable Items="@pagedTransactionsList" Hover="true" Striped="true" Outlined="true">
             <HeaderContent>
                 <MudTh>Ime</MudTh>
             </HeaderContent>
@@ -77,9 +98,30 @@
     private List<TransactionModel> transactionsList = new();
     private List<List<StockDelivery>> deliveryList = new();
     private List<List<StockReturn>> returnList = new();
-    private string searchString = string.Empty;
+    private StockDelivery? selectedDelivery;
+    private StockReturn? selectedReturn;
+    private string _searchString = string.Empty;
     private bool isLoading = true;
-    private bool showActiveOnly { get; set; } = true;
+    private bool _showActiveOnly { get; set; } = true;
+    private bool showDeliveryInfo = false, showDeliveryTable = true;
+    private bool showReturnInfo = false, showReturnTable = true;
+
+    // Pagination states for each tab
+    private int totalDeliveryPages, deliveryRowsPerPage = 2, currentDeliveryPage = 1;
+    private int totalReturnPages, returnRowsPerPage = 3, currentReturnPage = 1;
+    private int totalTransactionPages, transactionRowsPerPage = 3, currentTransactionPage = 1;
+
+    private IEnumerable<List<StockDelivery>> pagedDeliveryList => filteredDeliveryList
+        .Skip((currentDeliveryPage - 1) * deliveryRowsPerPage)
+        .Take(deliveryRowsPerPage);
+
+    private IEnumerable<List<StockReturn>> pagedReturnList => filteredReturnList
+        .Skip((currentReturnPage - 1) * returnRowsPerPage)
+        .Take(returnRowsPerPage);
+
+    private IEnumerable<TransactionModel> pagedTransactionsList => transactionsList
+        .Skip((currentTransactionPage - 1) * transactionRowsPerPage)
+        .Take(transactionRowsPerPage);
 
     protected override async Task OnInitializedAsync()
     {
@@ -92,8 +134,7 @@
         }
         deliveryList = GroupDeliveryByTransactionId(deliveries);
         returnList = GroupReturnByDeliveryId(returns);
-        // CalculateTotalPages();
-        // UpdatePagedCustomers();
+        CalculateTotalPages();
     }
 
     private List<List<StockDelivery>> GroupDeliveryByTransactionId(List<StockDelivery> stockDeliveries)
@@ -120,9 +161,84 @@
         return groupedStockDeliveries;
     }
 
+    private void CalculateTotalPages()
+    {
+        totalDeliveryPages = (int)Math.Ceiling(filteredDeliveryList.Count() / (double)deliveryRowsPerPage);
+        totalReturnPages = (int)Math.Ceiling(filteredReturnList.Count() / (double)returnRowsPerPage);
+        totalTransactionPages = (int)Math.Ceiling(transactionsList.Count() / (double)transactionRowsPerPage);
+    }
+
+    private void HandleDeliveryPageChange(int page)
+    {
+        currentDeliveryPage = page;
+    }
+
+    private void HandleReturnPageChange(int page)
+    {
+        currentReturnPage = page;
+    }
+
+    private void HandleTransactionPageChange(int page)
+    {
+        currentTransactionPage = page;
+    }
+    private void ShowDeliveryDetails(StockDelivery delivery)
+    {
+        selectedDelivery = delivery;
+        showDeliveryTable = false;
+        showDeliveryInfo = true;
+    }
+    private void ResetDeliveryInfo()
+    {
+        showDeliveryInfo = false;
+        showDeliveryTable = true;
+    }
+    private void ShowReturnDetails(StockReturn stockReturn)
+    {
+        selectedReturn = stockReturn;
+        showReturnTable = false;
+        showReturnInfo = true;
+    }
+    private void ResetReturnInfo()
+    {
+        showReturnInfo = false;
+        showReturnTable = true;
+    }
+
     private IEnumerable<List<StockDelivery>> filteredDeliveryList => deliveryList
-        .Where(d => (string.IsNullOrWhiteSpace(searchString)
-        || d.First().Inventory?.Customer?.Name?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true
-        || d.First().Inventory?.Customer?.Oib?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true)
-        && d.First().TransactionInfo?.IsActive == showActiveOnly);
+        .Where(d => (string.IsNullOrWhiteSpace(SearchString)
+        || d.First().Inventory?.Customer?.Name?.Contains(SearchString, StringComparison.OrdinalIgnoreCase) == true
+        || d.First().Inventory?.Customer?.Oib?.Contains(SearchString, StringComparison.OrdinalIgnoreCase) == true)
+        && d.First().TransactionInfo?.IsActive == ShowActiveOnly || d.First().TransactionInfo?.IsActive == true);
+
+    private IEnumerable<List<StockReturn>> filteredReturnList => returnList
+        .Where(r => string.IsNullOrWhiteSpace(SearchString)
+        || r.First().Delivery?.Inventory?.Customer?.Name?.Contains(SearchString, StringComparison.OrdinalIgnoreCase) == true
+        || r.First().Delivery?.Inventory?.Customer?.Oib?.Contains(SearchString, StringComparison.OrdinalIgnoreCase) == true);
+
+    private string SearchString
+    {
+        get => _searchString;
+        set
+        {
+            if (_searchString != value)
+            {
+                _searchString = value;
+                CalculateTotalPages();
+            }
+        }
+    }
+
+    private bool ShowActiveOnly
+    {
+        get => _showActiveOnly;
+        set
+        {
+            if (_showActiveOnly != value)
+            {
+                _showActiveOnly = value;
+                CalculateTotalPages();
+            }
+        }
+    }
 }

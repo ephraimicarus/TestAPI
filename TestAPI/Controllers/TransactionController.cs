@@ -91,5 +91,19 @@ namespace TestAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet]
+        [Route("delivery/transactionid")]
+        public async Task<ActionResult<StockDelivery>> GetStockDeliveriesByTransactionIdAsync([FromQuery] int id)
+        {
+            try
+            {
+                var transactions = await _transactionService.GetStockDeliveriesByTransactionIdAsync(id);
+                return Ok(transactions);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
