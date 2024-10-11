@@ -136,8 +136,29 @@ namespace BaseAppPerla.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
-                    var transactions = JsonConvert.DeserializeObject<List<StockDelivery>>(content);
-                    return transactions!;
+                    var deliveries = JsonConvert.DeserializeObject<List<StockDelivery>>(content);
+                    return deliveries!;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public async Task<List<StockReturn>> GetStockReturnsByDeliveryIdAsync(int deliveryId)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_httpClient.BaseAddress}/Transaction/return/transactionid?id={deliveryId}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var stockReturns = JsonConvert.DeserializeObject<List<StockReturn>>(content);
+                    return stockReturns!;
                 }
                 else
                 {

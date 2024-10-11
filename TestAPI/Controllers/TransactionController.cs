@@ -20,9 +20,9 @@ namespace TestAPI.Controllers
             _transactionService = transactionService;
         }
 
-		[Route("api/[controller]/delivery")]
 		[HttpPost]
-		public async Task<ActionResult<StockDelivery>> CreateDelivery([FromBody] Dictionary<int, int> inventories)
+        [Route("delivery")]
+        public async Task<ActionResult<StockDelivery>> CreateDelivery([FromBody] Dictionary<int, int> inventories)
 		{
 			try
 			{
@@ -36,7 +36,7 @@ namespace TestAPI.Controllers
 		}
 
 		[HttpPost]
-        [Route("api/[controller]/return")]
+        [Route("return")]
         public async Task<ActionResult<StockReturn>> CreateReturn([FromBody] Dictionary<int, int> stockReturns)
 		{
 			try
@@ -97,8 +97,22 @@ namespace TestAPI.Controllers
         {
             try
             {
-                var transactions = await _transactionService.GetStockDeliveriesByTransactionIdAsync(id);
-                return Ok(transactions);
+                var deliveries = await _transactionService.GetStockDeliveriesByTransactionIdAsync(id);
+                return Ok(deliveries);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet]
+        [Route("return/transactionid")]
+        public async Task<ActionResult<StockReturn>> GetStockReturnsByDeliveryIdAsync([FromQuery] int id)
+        {
+            try
+            {
+                var stockReturns = await _transactionService.GetStockReturnsByDeliveryIdAsync(id);
+                return Ok(stockReturns);
             }
             catch (Exception ex)
             {

@@ -1,0 +1,78 @@
+﻿@page "/createdelivery"
+@using BaseAppPerla.Interfaces
+@using BaseAppPerla.Models
+@inject ICustomerService _customerService
+@inject IInventoryService _inventoryService
+@inject ITransactionService _transactionService
+@inject NavigationManager Navigation
+
+<h3>Create Delivery</h3>
+
+<MudForm>
+    <MudSelect T="Customer" Label="Select Customer" @bind-Value="SelectedCustomer" TextChanged="()=>OnCustomerSelected(SelectedCustomer!)">
+        @foreach (var customer in customers)
+        {
+            <MudSelectItem Value="customer">@customer.Name</MudSelectItem>
+        }
+    </MudSelect>
+
+    @if (showInventoryTable)
+    {
+        <MudTable Items="inventoryItems">
+            <HeaderContent>
+                <MudTh>Item</MudTh>
+                <MudTh>Available Quantity</MudTh>
+                <MudTh>Quantity to Deliver</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.Item?.Description</MudTd>
+                <MudTd>@context.Quantity</MudTd>
+                <MudTd>
+                    <MudTextField T="int" @bind-Value="context.QuantityShuttle" />
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
+
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnDeliveryCreated">Create Delivery</MudButton>
+</MudForm>
+
+@code {
+    private StockDelivery deliveryModel = new();
+    private List<Customer> customers = new List<Customer>();
+    private List<InventoryDto> inventoryItems = new();
+    private Customer? SelectedCustomer;
+    private Dictionary<int, int> createdDelivery = new();
+    private bool showInventoryTable = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        customers = await _customerService.GetAllCustomersAsync();
+    }
+
+    private async Task OnCustomerSelected(Customer customer)
+    {
+        SelectedCustomer = customer;
+        inventoryItems = await _inventoryService.GetInventoriesAsync(customer.CustomerId);
+        showInventoryTable = true;
+    }
+    private async Task OnDeliveryCreated()
+    {
+        foreach(var item in inventoryItems)
+        {
+            createdDelivery.Add(item.InventoryId, item.QuantityShuttle);
+        }
+        foreach(var item in createdDelivery)
+        {
+            if(item.Value <=0)
+            {
+                createdDelivery.Remove(item.Key);
+            }
+        }
+        if (createdDelivery.Count() <= 0)
+        {
+            return;
+        }
+        await _transactionService.CreateDeliveryAsync(createdDelivery);
+    }
+}

@@ -1,5 +1,6 @@
 ﻿@page "/transactions"
 @using BaseAppPerla.Components.Pages.TransactionComponents.Deliveries
+@using BaseAppPerla.Components.Pages.TransactionComponents.Returns
 @using BaseAppPerla.Interfaces
 @using BaseAppPerla.Models
 @inject ITransactionService _transactionService
@@ -10,7 +11,7 @@
 <MudCard>
     <MudGrid>
         <MudItem xs="12" sm="6" md="3">
-            <MudButton Style="margin: 10px" Variant="Variant.Filled" Color="Color.Primary">Kreiraj isporuku</MudButton>
+            <MudButton Style="margin: 10px" Variant="Variant.Filled" Color="Color.Primary" OnClick="NavigateToCreateDelivery">Kreiraj isporuku</MudButton>
         </MudItem>
         <MudItem xs="12" sm="6" md="3">
             <MudButton Style="margin: 10px" Variant="Variant.Filled" Color="Color.Primary">Kreiraj povrat</MudButton>
@@ -28,28 +29,42 @@
                 <MudTextField @bind-Value="SearchString" Placeholder="Pretraži po imenu/nazivu firme ili OIB" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" />
                 <MudCheckBox @bind-Value="ShowActiveOnly" Label="Prikaži samo aktivne isporuke" />
                 <br />
-                <MudTable Items="@pagedDeliveryList"
-                          Hover="true"
-                          Striped="true"
-                          Outlined="true"
-                          RowsPerPage="deliveryRowsPerPage">
-                    <HeaderContent>
-                        <MudTh>Broj transakcije</MudTh>
-                        <MudTh>Klijent</MudTh>
-                        <MudTh>Datum isporuke</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd DataLabel="Transakcija">@context.First().TransactionInfo?.TransactionId</MudTd>
-                        <MudTd DataLabel="Klijent">@context.First().Inventory?.Customer?.Name</MudTd>
-                        <MudTd DataLabel="Datum isporuke">@context.First().TransactionInfo?.TransactionDate.ToString("dd-MM-yyyy")</MudTd>
-                        <MudTd DataLabel="">
-                            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowDeliveryDetails(context.First())">Detalji</MudButton>
-                        </MudTd>
-                    </RowTemplate>
-                    <PagerContent>
-                        <MudPagination Count="totalDeliveryPages" SelectedChanged="HandleDeliveryPageChange" />
-                    </PagerContent>
-                </MudTable>
+                @if (isLoading)
+                {
+                    <div>Dohvaćam podatke...</div>
+                }
+                else
+                {
+                    @if (filteredDeliveryList.Count() == 0)
+                    {
+                        <div>Nema rezultata pretrage</div>
+                    }
+                    else
+                    {
+                        <MudTable Items="@pagedDeliveryList"
+                                  Hover="true"
+                                  Striped="true"
+                                  Outlined="true"
+                                  RowsPerPage="deliveryRowsPerPage">
+                            <HeaderContent>
+                                <MudTh>Broj transakcije</MudTh>
+                                <MudTh>Klijent</MudTh>
+                                <MudTh>Datum isporuke</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="Transakcija">@context.First().TransactionInfo?.TransactionId</MudTd>
+                                <MudTd DataLabel="Klijent">@context.First().Inventory?.Customer?.Name</MudTd>
+                                <MudTd DataLabel="Datum isporuke">@context.First().TransactionInfo?.TransactionDate.ToString("dd-MM-yyyy")</MudTd>
+                                <MudTd DataLabel="">
+                                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowDeliveryDetails(context.First())">Detalji</MudButton>
+                                </MudTd>
+                            </RowTemplate>
+                            <PagerContent>
+                                <MudPagination Count="totalDeliveryPages" SelectedChanged="HandleDeliveryPageChange" />
+                            </PagerContent>
+                        </MudTable>
+                    }
+                }
             }
             else
             {
@@ -62,35 +77,57 @@
             <br />
         </MudCard>
     </MudTabPanel>
+
     <MudTabPanel Text="Povrati">
-        <MudTable Items="@pagedReturnList" Hover="true" Striped="true" Outlined="true">
-            <HeaderContent>
-                <MudTh>Povrat na isporuku broj</MudTh>
-                <MudTh>Klijent</MudTh>
-                <MudTh>Datum povrata</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="Povrat na isporuku broj">@context.First().Delivery?.StockDeliveryId</MudTd>
-                <MudTd DataLabel="Klijent">@context.First().Delivery?.Inventory?.Customer?.Name</MudTd>
-                <MudTd DataLabel="Datum povrata">@context.First().Delivery?.TransactionInfo?.TransactionDate</MudTd>
-                <MudTd DataLabel="">
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary">Detalji</MudButton>
-                </MudTd>
-            </RowTemplate>
-            <PagerContent>
-                <MudPagination Count="totalReturnPages" SelectedChanged="HandleReturnPageChange" />
-            </PagerContent>
-        </MudTable>
-    </MudTabPanel>
-    <MudTabPanel Text="Sve transakcije">
-        <MudTable Items="@pagedTransactionsList" Hover="true" Striped="true" Outlined="true">
-            <HeaderContent>
-                <MudTh>Ime</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="Ime">@context.Description</MudTd>
-            </RowTemplate>
-        </MudTable>
+        <MudCard>
+            @if (showReturnTable)
+            {
+                <br />
+                <MudTextField @bind-Value="SearchString" Placeholder="Pretraži po imenu/nazivu firme ili OIB" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" />
+                <br />
+                @if (isLoading)
+                {
+                    <div>Dohvaćam podatke...</div>
+                }
+                else
+                {
+                    @if (filteredReturnList.Count() == 0)
+                    {
+                        <div>Nema rezultata pretrage</div>
+                    }
+                    else
+                    {
+                        <MudTable Items="@pagedReturnList" Hover="true" Striped="true" Outlined="true">
+                            <HeaderContent>
+                                <MudTh>Povrat na isporuku broj</MudTh>
+                                <MudTh>Klijent</MudTh>
+                                <MudTh>Datum povrata</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="Povrat na isporuku broj">@context.First().Delivery?.StockDeliveryId</MudTd>
+                                <MudTd DataLabel="Klijent">@context.First().Delivery?.Inventory?.Customer?.Name</MudTd>
+                                <MudTd DataLabel="Datum povrata">@context.First().Delivery?.TransactionInfo?.TransactionDate</MudTd>
+                                <MudTd DataLabel="">
+                                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="()=>ShowReturnDetails(context.First())">Detalji</MudButton>
+                                </MudTd>
+                            </RowTemplate>
+                            <PagerContent>
+                                <MudPagination Count="totalReturnPages" SelectedChanged="HandleReturnPageChange" />
+                            </PagerContent>
+                        </MudTable>
+                    }
+                }
+            }
+            else
+            {
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ResetReturnInfo()" Style="width: 160px; margin-top: 4px;">Prikaži isporuke</MudButton>
+            }
+            @if (showReturnInfo)
+            {
+                <ReturnInfo deliveryId="selectedReturn!.Delivery!.StockDeliveryId" />
+            }
+            <br />
+        </MudCard>
     </MudTabPanel>
 </MudTabs>
 
@@ -203,6 +240,11 @@
     {
         showReturnInfo = false;
         showReturnTable = true;
+    }
+
+    private void NavigateToCreateDelivery()
+    {
+        Navigation.NavigateTo("/createdelivery");
     }
 
     private IEnumerable<List<StockDelivery>> filteredDeliveryList => deliveryList

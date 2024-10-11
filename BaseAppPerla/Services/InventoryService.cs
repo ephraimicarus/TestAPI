@@ -38,7 +38,7 @@ namespace BaseAppPerla.Services
             }
         }
 
-        public async Task<List<Inventory>> GetInventoriesAsync(int id)
+        public async Task<List<InventoryDto>> GetInventoriesAsync(int id)
         {
             try
             {
@@ -46,7 +46,7 @@ namespace BaseAppPerla.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
-                    var inventories = JsonConvert.DeserializeObject<List<Inventory>>(content);
+                    var inventories = JsonConvert.DeserializeObject<List<InventoryDto>>(content);
                     return inventories!;
                 }
                 else
