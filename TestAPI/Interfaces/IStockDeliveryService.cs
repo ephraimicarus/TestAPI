@@ -8,5 +8,6 @@ namespace BaseApi.Interfaces
         Task<List<StockDelivery>> GetStockDeliveriesByTransactionIdAsync(int transactionId);
         Task<List<StockDelivery>> GetALlStockDeliveriesAsync();
         Task<StockDelivery> UpdateDeliveryAsync(int deliveryId, int quantity);
+        Task<List<StockDelivery>> GetStockDeliveriesByCustomerIdAsync(int customerId);
     }
 }

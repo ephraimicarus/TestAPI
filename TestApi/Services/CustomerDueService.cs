@@ -16,7 +16,18 @@ namespace BaseApi.Services
             _context = context;
             _customerService = customerService;
         }
-        public async Task<List<Customer>> GetOverdueCustomers() => await _context.Customers.Where(c => c.Overdue == true).ToListAsync();
+        public async Task<List<Customer>> GetOverdueCustomers() {
+            var customers=  await _context.Customers.Where(c => c.Overdue == true).ToListAsync();
+            foreach(var c in customers)
+            {
+                if(await IsCustomerDue(c))
+                {
+                    c.Overdue = true;
+                    await _customerService.UpdateCustomerAsync(c);
+                }
+            }
+            return customers;
+        } 
 
         public async Task<Customer> ResetCustomerDueStatus(int customerId)
         {

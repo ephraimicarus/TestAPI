@@ -93,6 +93,14 @@ namespace TestAPI.Services
                 .Where(d => d.TransactionInfo!.TransactionId == transactionId).ToListAsync();
             return delivery;
         }
+        public async Task<List<StockDelivery>> GetStockDeliveriesByCustomerIdAsync(int customerId)
+        {
+            var delivery = await _context.Deliveries
+                .Include(d => d.Inventory)
+                .Include(d => d.TransactionInfo)
+                .Where(d => d.Inventory!.Customer!.CustomerId == customerId).ToListAsync();
+            return delivery;
+        }
 
         public async Task<StockDelivery> UpdateDeliveryAsync(int deliveryId, int quantity)
         {

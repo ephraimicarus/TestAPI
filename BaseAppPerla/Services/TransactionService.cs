@@ -128,7 +128,29 @@ namespace BaseAppPerla.Services
             }
         }
 
-        public async Task<List<StockDelivery>> GetStockDeliveriesByTransactionIdAsync(int transactionId)
+        public async Task<List<StockDelivery>> GetStockDeliveriesByCustomerIdAsync(int transactionId)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_httpClient.BaseAddress}/Transaction/delivery/customer/transactionid?id={transactionId}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var deliveries = JsonConvert.DeserializeObject<List<StockDelivery>>(content);
+                    return deliveries!;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public async Task<List<StockReturnDto>> GetStockDeliveriesByTransactionIdAsync(int transactionId)
         {
             try
             {
@@ -136,7 +158,7 @@ namespace BaseAppPerla.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
-                    var deliveries = JsonConvert.DeserializeObject<List<StockDelivery>>(content);
+                    var deliveries = JsonConvert.DeserializeObject<List<StockReturnDto>>(content);
                     return deliveries!;
                 }
                 else

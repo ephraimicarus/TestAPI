@@ -1,8 +1,10 @@
-﻿namespace BaseApi.DTOs
+﻿using TestAPI.Models;
+
+namespace BaseApi.DTOs
 {
 	public class StockReturnDTO
 	{
-        public int DeliveryId { get; set; }
-        public int Quantity { get; set; }
+        public StockDelivery? Delivery { get; set; }
+        public int TotalQuantity { get; set; }
     }
 }

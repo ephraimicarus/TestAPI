@@ -9,7 +9,8 @@ namespace BaseAppPerla.Interfaces
         Task<List<TransactionModel>> GetAllTransactions();
         Task<List<StockDelivery>> GetAllDeliveries();
         Task<List<StockReturn>> GetAllReturns();
-        Task<List<StockDelivery>> GetStockDeliveriesByTransactionIdAsync(int transactionId);
+        Task<List<StockReturnDto>> GetStockDeliveriesByTransactionIdAsync(int transactionId);
+        Task<List<StockDelivery>> GetStockDeliveriesByCustomerIdAsync(int transactionId);
         Task<List<StockReturn>> GetStockReturnsByDeliveryIdAsync(int deliveryId);
     }
 }

@@ -1,0 +1,137 @@
+﻿@page "/createreturn"
+@using BaseAppPerla.Interfaces
+@using BaseAppPerla.Models
+@inject ICustomerService _customerService
+@inject IInventoryService _inventoryService
+@inject ITransactionService _transactionService
+@inject NavigationManager Navigation
+
+<MudForm>
+    <MudSelect T="Customer" Label="Odaberi klijenta" Value="SelectedCustomer" ValueChanged="OnCustomerSelected">
+        @foreach (var customer in customers)
+        {
+            <MudSelectItem Value="customer">@customer.Name</MudSelectItem>
+        }
+    </MudSelect>
+    <MudSelect T="StockDelivery" Label="Odaberi isporuku" Value="SelectedDelivery" ValueChanged="OnDeliverySelected">
+        @foreach (var delivery in deliveriesDropdown)
+        {
+            <MudSelectItem Value="delivery">@delivery.StockDeliveryId @delivery.TransactionInfo?.TransactionDate</MudSelectItem>
+        }
+    </MudSelect>
+
+    @if (showDeliveryTable)
+    {
+        <MudTable Items="stockReturns">
+            <HeaderContent>
+                <MudTh>Artikl za povrat</MudTh>
+                <MudTh>Količina isporučeno</MudTh>
+                <MudTh>Količina za povrat</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.Inventory?.Item?.Description</MudTd>
+                <MudTd>@context.QuantityDelivered</MudTd>
+                <MudTd>@context.QuantityToReturn</MudTd>
+                <MudTd>
+                    <MudTextField T="int" @bind-Value="context.QuantityShuttle" />
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
+
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnReturnCreated">Create Delivery</MudButton>
+</MudForm>
+
+@code {
+    private StockDelivery deliveryModel = new();
+    private List<Customer> customers = new List<Customer>();
+    private List<StockDelivery> deliveriesDropdown = new();
+    private List<StockReturnDto> stockReturns = new();
+    private Customer? selectedCustomer;
+    private StockDelivery? selectedDelivery;
+    private Dictionary<int, int> createdReturn = new();
+    private bool showDeliveryTable = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        customers = await _customerService.GetAllCustomersAsync();
+    }
+
+    private async Task OnCustomerSelected(Customer customer)
+    {
+        selectedCustomer = customer;
+        deliveriesDropdown.Clear();
+        selectedDelivery = null;
+        stockReturns.Clear();
+        showDeliveryTable = false;
+        deliveriesDropdown = await _transactionService.GetStockDeliveriesByCustomerIdAsync(customer.CustomerId);
+    }
+
+    private async Task OnDeliverySelected(StockDelivery delivery)
+    {
+        selectedDelivery = null;
+        showDeliveryTable = false;
+        stockReturns.Clear();
+        selectedDelivery = delivery;
+        stockReturns = await _transactionService.GetStockDeliveriesByTransactionIdAsync(delivery.TransactionInfo!.TransactionId);
+        showDeliveryTable = true;
+    }
+
+    private async Task OnReturnCreated()
+    {
+        foreach (var item in stockReturns)
+        {
+            createdReturn.Add(item.StockDeliveryId, item.QuantityShuttle);
+        }
+        foreach (var item in createdReturn.ToList())
+        {
+            if (item.Value <= 0)
+            {
+                createdReturn.Remove(item.Key);
+            }
+        }
+        if (createdReturn.Count <= 0)
+        {
+            return;
+        }
+        await _transactionService.CreateReturnAsync(createdReturn);
+    }
+
+    private Customer? SelectedCustomer
+    {
+        get => selectedCustomer;
+        set
+        {
+            if (selectedCustomer != value)
+            {
+                selectedCustomer = value;
+                _ = OnCustomerSelected(selectedCustomer!);
+            }
+        }
+    }
+
+    private StockDelivery? SelectedDelivery
+    {
+        get => selectedDelivery;
+        set
+        {
+            if (selectedDelivery != value)
+            {
+                selectedDelivery = value;
+                _ = OnDeliverySelected(selectedDelivery!);
+            }
+        }
+    }
+
+    private List<List<StockReturnDto>> GroupByTransactionId(List<StockReturnDto> stockDeliveries)
+    {
+        var transactionIds = stockDeliveries.Select(x => x.TransactionInfo!.TransactionId).Distinct();
+        var groupedStockDeliveries = new List<List<StockReturnDto>>();
+        foreach (var transactionId in transactionIds)
+        {
+            var groupedStockDelivery = stockDeliveries.Where(x => x.TransactionInfo!.TransactionId == transactionId).ToList();
+            groupedStockDeliveries.Add(groupedStockDelivery);
+        }
+        return groupedStockDeliveries;
+    }
+}

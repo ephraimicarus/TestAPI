@@ -71,8 +71,8 @@ namespace BaseApi.Services
                 await _customerDueService.SetACustomerAsDue(cus!);
             else
                 await _customerDueService.ResetCustomerDueStatus(cus!.CustomerId);
-            if(!await _transactionService.IsTransactionActive(transaction.TransactionId))
-                await _transactionService.SetTransactionNotActive(transaction.TransactionId);
+            if(!await _transactionService.IsTransactionActive(stockReturnList.First().Delivery!.TransactionInfo!.TransactionId))
+                await _transactionService.SetTransactionNotActive(stockReturnList.First().Delivery!.TransactionInfo!.TransactionId);
             await _context.SaveChangesAsync();
 
             return stockReturnList;

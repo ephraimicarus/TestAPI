@@ -106,6 +106,20 @@ namespace TestAPI.Controllers
             }
         }
         [HttpGet]
+        [Route("delivery/customer/transactionid")]
+        public async Task<ActionResult<StockDelivery>> GetStockDeliveriesByCustomerIdAsync([FromQuery] int id)
+        {
+            try
+            {
+                var deliveries = await _deliveryService.GetStockDeliveriesByCustomerIdAsync(id);
+                return Ok(deliveries);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet]
         [Route("return/transactionid")]
         public async Task<ActionResult<StockReturn>> GetStockReturnsByDeliveryIdAsync([FromQuery] int id)
         {

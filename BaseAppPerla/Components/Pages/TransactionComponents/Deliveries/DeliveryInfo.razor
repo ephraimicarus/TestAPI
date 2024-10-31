@@ -39,7 +39,7 @@ else
     [Parameter]
     public int transactionId { get; set; }
 
-    private List<StockDelivery>? deliveries;
+    private List<StockReturnDto>? deliveries;
     private bool isLoading = true;
 
     protected override async Task OnInitializedAsync()
