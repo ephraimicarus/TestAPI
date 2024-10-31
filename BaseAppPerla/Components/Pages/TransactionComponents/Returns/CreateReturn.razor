@@ -14,9 +14,9 @@
         }
     </MudSelect>
     <MudSelect T="StockDelivery" Label="Odaberi isporuku" Value="SelectedDelivery" ValueChanged="OnDeliverySelected">
-        @foreach (var delivery in deliveriesDropdown)
+        @foreach (var delivery in deliveriesDropdown1)
         {
-            <MudSelectItem Value="delivery">@delivery.StockDeliveryId @delivery.TransactionInfo?.TransactionDate</MudSelectItem>
+            <MudSelectItem Value="delivery.First()">@delivery.First().TransactionInfo?.TransactionId @delivery.First().TransactionInfo?.TransactionDate</MudSelectItem>
         }
     </MudSelect>
 
@@ -45,6 +45,7 @@
 @code {
     private StockDelivery deliveryModel = new();
     private List<Customer> customers = new List<Customer>();
+    private List<List<StockDelivery>> deliveriesDropdown1 = new();
     private List<StockDelivery> deliveriesDropdown = new();
     private List<StockReturnDto> stockReturns = new();
     private Customer? selectedCustomer;
@@ -65,6 +66,7 @@
         stockReturns.Clear();
         showDeliveryTable = false;
         deliveriesDropdown = await _transactionService.GetStockDeliveriesByCustomerIdAsync(customer.CustomerId);
+        deliveriesDropdown1 = GroupByTransactionId(deliveriesDropdown);
     }
 
     private async Task OnDeliverySelected(StockDelivery delivery)
@@ -123,10 +125,10 @@
         }
     }
 
-    private List<List<StockReturnDto>> GroupByTransactionId(List<StockReturnDto> stockDeliveries)
+    private List<List<StockDelivery>> GroupByTransactionId(List<StockDelivery> stockDeliveries)
     {
         var transactionIds = stockDeliveries.Select(x => x.TransactionInfo!.TransactionId).Distinct();
-        var groupedStockDeliveries = new List<List<StockReturnDto>>();
+        var groupedStockDeliveries = new List<List<StockDelivery>>();
         foreach (var transactionId in transactionIds)
         {
             var groupedStockDelivery = stockDeliveries.Where(x => x.TransactionInfo!.TransactionId == transactionId).ToList();
