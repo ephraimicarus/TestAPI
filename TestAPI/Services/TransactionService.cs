@@ -52,6 +52,7 @@ namespace BaseApi.Services
                 .Include(r => r.Delivery)
                     .ThenInclude(d => d.TransactionInfo)
                 .Include(r => r.Delivery!.Inventory!.Customer)
+                .Include(r => r.Delivery!.Inventory!.Item)
                 .OrderByDescending(r => r.Delivery!.TransactionInfo!.TransactionDate)
                 .ToListAsync();
             return stockReturn;

@@ -9,7 +9,7 @@
 <h3>Create Delivery</h3>
 
 <MudForm>
-    <MudSelect T="Customer" Label="Select Customer" Value="SelectedCustomer" ValueChanged="OnCustomerSelected">
+    <MudSelect T="Customer" Label="Odaberi Klijenta" Value="SelectedCustomer" ValueChanged="OnCustomerSelected">
         @foreach (var customer in customers)
         {
             <MudSelectItem Value="customer">@customer.Name</MudSelectItem>
@@ -20,9 +20,9 @@
     {
         <MudTable Items="inventoryItems">
             <HeaderContent>
-                <MudTh>Item</MudTh>
-                <MudTh>Available Quantity</MudTh>
-                <MudTh>Quantity to Deliver</MudTh>
+                <MudTh>Artikl</MudTh>
+                <MudTh>Stanje kod klijenta</MudTh>
+                <MudTh>Količina za isporuku</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd>@context.Item?.Description</MudTd>
@@ -34,7 +34,7 @@
         </MudTable>
     }
 
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnDeliveryCreated">Create Delivery</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnDeliveryCreated">Kreiraj isporuku</MudButton>
 </MudForm>
 
 @code {

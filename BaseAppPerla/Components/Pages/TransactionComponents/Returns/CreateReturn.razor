@@ -44,7 +44,7 @@
         </MudTable>
     }
 
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnReturnCreated">Create Delivery</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnReturnCreated">Kreiraj povrat</MudButton>
 </MudForm>
 
 @code {
@@ -154,7 +154,7 @@
             if (selectAll != value)
             {
                 selectAll = value;
-                StateHasChanged(); // Notify the UI of the change
+                StateHasChanged();
             }
         }
     }
