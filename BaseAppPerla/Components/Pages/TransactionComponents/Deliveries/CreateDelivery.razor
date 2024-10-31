@@ -6,14 +6,12 @@
 @inject ITransactionService _transactionService
 @inject NavigationManager Navigation
 
-<h3>Create Delivery</h3>
-
 <MudForm>
     <MudSelect T="Customer" Label="Odaberi Klijenta" Value="SelectedCustomer" ValueChanged="OnCustomerSelected">
         @foreach (var customer in customers)
         {
             <MudSelectItem Value="customer">@customer.Name</MudSelectItem>
-        }
+        }   
     </MudSelect>
 
     @if (showInventoryTable)
