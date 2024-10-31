@@ -29,7 +29,11 @@ namespace TestAPI.Controllers
 				var newDelivery = await _deliveryService.CreateDeliveryAsync(inventories);
 				return Ok(newDelivery);
 			}
-			catch (Exception ex)
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { ex.Message });
+            }
+            catch (Exception ex)
 			{
 				return BadRequest(ex.Message);
 			}

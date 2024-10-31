@@ -29,6 +29,9 @@ namespace BaseAppPerla.Services
                 }
                 else
                 {
+                    var errorResponse = await response.Content.ReadAsStringAsync();
+                    var errorMessage = JsonConvert.DeserializeObject<ErrorResponse>(errorResponse)?.Message;
+
                     return null;
                 }
             }
@@ -37,7 +40,10 @@ namespace BaseAppPerla.Services
                 return null;
             }
         }
-
+        public class ErrorResponse
+        {
+            public string Message { get; set; }
+        }
         public async Task<List<StockReturn>> CreateReturnAsync(Dictionary<int, int> stockReturns)
         {
             try
