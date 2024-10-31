@@ -14,7 +14,7 @@
         }
     </MudSelect>
     <MudSelect T="StockDelivery" Label="Odaberi isporuku" Value="SelectedDelivery" ValueChanged="OnDeliverySelected">
-        @foreach (var delivery in deliveriesDropdown1)
+        @foreach (var delivery in deliveriesDropdownList)
         {
             <MudSelectItem Value="delivery.First()">@delivery.First().TransactionInfo?.TransactionId @delivery.First().TransactionInfo?.TransactionDate</MudSelectItem>
         }
@@ -26,14 +26,19 @@
             <HeaderContent>
                 <MudTh>Artikl za povrat</MudTh>
                 <MudTh>Količina isporučeno</MudTh>
+                <MudTh>Stanje kod klijenta</MudTh>
                 <MudTh>Količina za povrat</MudTh>
+                <MudTh>
+                    Vrati sve
+                    <MudCheckBox @bind-Value="SelectAll" T="bool" />
+                </MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd>@context.Inventory?.Item?.Description</MudTd>
                 <MudTd>@context.QuantityDelivered</MudTd>
                 <MudTd>@context.QuantityToReturn</MudTd>
                 <MudTd>
-                    <MudTextField T="int" @bind-Value="context.QuantityShuttle" />
+                    <MudTextField Disabled="@SelectAll" T="int" @bind-Value="context.QuantityShuttle" />
                 </MudTd>
             </RowTemplate>
         </MudTable>
@@ -45,13 +50,14 @@
 @code {
     private StockDelivery deliveryModel = new();
     private List<Customer> customers = new List<Customer>();
-    private List<List<StockDelivery>> deliveriesDropdown1 = new();
-    private List<StockDelivery> deliveriesDropdown = new();
+    private List<List<StockDelivery>> deliveriesDropdownList = new();
+    private List<StockDelivery> customerDeliveries = new();
     private List<StockReturnDto> stockReturns = new();
     private Customer? selectedCustomer;
     private StockDelivery? selectedDelivery;
     private Dictionary<int, int> createdReturn = new();
     private bool showDeliveryTable = false;
+    private bool selectAll = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -61,12 +67,12 @@
     private async Task OnCustomerSelected(Customer customer)
     {
         selectedCustomer = customer;
-        deliveriesDropdown.Clear();
+        customerDeliveries.Clear();
         selectedDelivery = null;
         stockReturns.Clear();
         showDeliveryTable = false;
-        deliveriesDropdown = await _transactionService.GetStockDeliveriesByCustomerIdAsync(customer.CustomerId);
-        deliveriesDropdown1 = GroupByTransactionId(deliveriesDropdown);
+        customerDeliveries = await _transactionService.GetStockDeliveriesByCustomerIdAsync(customer.CustomerId);
+        deliveriesDropdownList = GroupByTransactionId(customerDeliveries.Where(sd => sd.TransactionInfo!.IsActive == true).ToList());
     }
 
     private async Task OnDeliverySelected(StockDelivery delivery)
@@ -83,6 +89,9 @@
     {
         foreach (var item in stockReturns)
         {
+            if(SelectAll){
+                item.QuantityShuttle = item.QuantityToReturn;
+            }
             createdReturn.Add(item.StockDeliveryId, item.QuantityShuttle);
         }
         foreach (var item in createdReturn.ToList())
@@ -135,5 +144,18 @@
             groupedStockDeliveries.Add(groupedStockDelivery);
         }
         return groupedStockDeliveries;
+    }
+
+    private bool SelectAll
+    {
+        get => selectAll;
+        set
+        {
+            if (selectAll != value)
+            {
+                selectAll = value;
+                StateHasChanged(); // Notify the UI of the change
+            }
+        }
     }
 }
