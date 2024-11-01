@@ -46,6 +46,10 @@
     }
 
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnReturnCreated">Kreiraj povrat</MudButton>
+    @if (isLoading)
+    {
+        <MudProgressCircular Indeterminate="true" />
+    }
 </MudForm>
 
 @code {

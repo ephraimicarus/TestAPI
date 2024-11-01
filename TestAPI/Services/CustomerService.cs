@@ -38,20 +38,36 @@ namespace TestAPI.Services
                 throw;
             }
         }
-        public async Task<Customer> DeleteCustomerAsync(Customer customer)
+        public async Task<Customer> DeleteCustomerAsync(int customerId)
         {
             var customerToDelete = _context.Customers
-            .Single(c => c.CustomerId == customer.CustomerId);
-            try
-            {
+            .Single(c => c.CustomerId == customerId);
+            var inventory = await _context.Inventories
+                .Include(i => i.Item)
+                .Where(i => i.Customer!.CustomerId == customerId)
+                .ToListAsync();
+            var returns = await _context.Returns
+                .Where(sr => sr.Delivery!.Inventory!.Customer!.CustomerId == customerId)
+                .ToListAsync();
+            var deliveries = await _context.Deliveries
+                .Where(sd => sd.Inventory!.Customer!.CustomerId == customerId)
+                .ToListAsync();
+                foreach (var item in inventory)
+                {
+                    if (item.Quantity == 0)
+                    {
+                        _context.Remove(item);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Klijent ima isporuke sa navedenim artiklom. Prvo napravite povrat.");
+                    }
+                }
+                _context.RemoveRange(returns);
+                _context.RemoveRange(deliveries);
                 _context.Remove(customerToDelete);
                 await _context.SaveChangesAsync();
                 return customerToDelete;
-            }
-            catch
-            {
-                throw;
-            }
         }
         public async Task<List<Customer>> GetAllCustomersAsync() => await _context.Customers.ToListAsync();
 

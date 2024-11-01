@@ -6,7 +6,7 @@ namespace TestAPI.Services
 	{
 		Task<Customer> CreateCustomerAsync(Customer customer);
 		Task<Customer> UpdateCustomerAsync(Customer customer);
-		Task<Customer> DeleteCustomerAsync(Customer customer);
+		Task<Customer> DeleteCustomerAsync(int customerId);
 		Task<Customer> GetCustomerByOibAsync(string oib);
         Task<Customer> GetCustomerByIdAsync(int id);
         Task<List<Customer>> GetAllCustomersAsync();

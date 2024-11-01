@@ -92,14 +92,18 @@ namespace TestAPI.Controllers
 		}
 
 		[HttpDelete]
-		public async Task<ActionResult<Customer>> DeleteCustomerAsync(Customer customer)
+		public async Task<ActionResult<Customer>> DeleteCustomerAsync([FromQuery] int customerId)
 		{
 			try
 			{
-				var deletedCustomer = await _customerService.DeleteCustomerAsync(customer);
+				var deletedCustomer = await _customerService.DeleteCustomerAsync(customerId);
 				return Ok(deletedCustomer);
 			}
-			catch (Exception ex)
+			catch (InvalidOperationException ex)
+			{
+                return BadRequest(new { ex.Message });
+            }
+            catch (Exception ex)
 			{
 				Console.WriteLine(ex);
 				return BadRequest(ex.Message);

@@ -1,4 +1,5 @@
-﻿using BaseAppPerla.Interfaces;
+﻿using BaseAppPerla.ExceptionHandling;
+using BaseAppPerla.Interfaces;
 using BaseAppPerla.Models;
 using Newtonsoft.Json;
 using System.Net.Http.Json;
@@ -29,9 +30,28 @@ namespace BaseAppPerla.Services
             }
         }
 
-        public Task<Customer> DeleteCustomerAsync(Customer customer)
+        public async Task<ServiceResult<Customer>> DeleteCustomerAsync(int customerId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var response = await _httpClient.DeleteAsync($"{_httpClient.BaseAddress}/Customer?customerId={customerId}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    var deletedCustomer = JsonConvert.DeserializeObject<Customer>(responseContent);
+                    return new ServiceResult<Customer> { Data = deletedCustomer!, ErrorMessage = string.Empty };
+                }
+                else
+                {
+                    var errorResponse = await response.Content.ReadAsStringAsync();
+                    var errorMessage = JsonConvert.DeserializeObject<ErrorResponse>(errorResponse)?.Message;
+                    return new ServiceResult<Customer> { ErrorMessage = errorMessage! };
+                }
+            }
+            catch(Exception ex)
+            {
+                return new ServiceResult<Customer> { ErrorMessage = ex.Message };
+            }
         }
 
         public async Task<List<Customer>> GetAllCustomersAsync()
