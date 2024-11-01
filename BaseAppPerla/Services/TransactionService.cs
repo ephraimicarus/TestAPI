@@ -1,4 +1,6 @@
-﻿using BaseAppPerla.Interfaces;
+﻿using BaseAppPerla.DTOs;
+using BaseAppPerla.ExceptionHandling;
+using BaseAppPerla.Interfaces;
 using BaseAppPerla.Models;
 using Newtonsoft.Json;
 using System.Text;
@@ -14,7 +16,7 @@ namespace BaseAppPerla.Services
             _httpClient = httpClient;
             _httpClient.BaseAddress = new Uri("https://localhost:44398/api");
         }
-        public async Task<List<StockDelivery>> CreateDeliveryAsync(Dictionary<int, int> inventories)
+        public async Task<ServiceResult<List<StockDelivery>>> CreateDeliveryAsync(Dictionary<int, int> inventories)
         {
             try
             {
@@ -24,27 +26,22 @@ namespace BaseAppPerla.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
-                    var createdItem = JsonConvert.DeserializeObject<List<StockDelivery>>(content);
-                    return createdItem!;
+                    var createdItems = JsonConvert.DeserializeObject<List<StockDelivery>>(content);
+                    return new ServiceResult<List<StockDelivery>> { Data = createdItems!, ErrorMessage = string.Empty };
                 }
                 else
                 {
                     var errorResponse = await response.Content.ReadAsStringAsync();
                     var errorMessage = JsonConvert.DeserializeObject<ErrorResponse>(errorResponse)?.Message;
-
-                    return null;
+                    return new ServiceResult<List<StockDelivery>> { ErrorMessage = errorMessage! };
                 }
             }
             catch (Exception ex)
             {
-                return null;
+                return new ServiceResult<List<StockDelivery>> { ErrorMessage = ex.Message };
             }
         }
-        public class ErrorResponse
-        {
-            public string Message { get; set; }
-        }
-        public async Task<List<StockReturn>> CreateReturnAsync(Dictionary<int, int> stockReturns)
+        public async Task<ServiceResult<List<StockReturn>>> CreateReturnAsync(Dictionary<int, int> stockReturns)
         {
             try
             {
@@ -55,16 +52,18 @@ namespace BaseAppPerla.Services
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     var createdItem = JsonConvert.DeserializeObject<List<StockReturn>>(content);
-                    return createdItem!;
+                    return new ServiceResult<List<StockReturn>>{ Data = createdItem!, ErrorMessage = string.Empty };
                 }
                 else
                 {
-                    return null;
+                    var errorResponse = await response.Content.ReadAsStringAsync();
+                    var errorMessage = JsonConvert.DeserializeObject<ErrorResponse>(errorResponse)?.Message;
+                    return new ServiceResult<List<StockReturn>> { ErrorMessage = errorMessage! };
                 }
             }
             catch (Exception ex)
             {
-                return null;
+                return new ServiceResult<List<StockReturn>> { ErrorMessage = ex.Message };
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿@page "/createreturn"
+@using BaseAppPerla.DTOs
 @using BaseAppPerla.Interfaces
 @using BaseAppPerla.Models
 @inject ICustomerService _customerService
@@ -58,6 +59,8 @@
     private Dictionary<int, int> createdReturn = new();
     private bool showDeliveryTable = false;
     private bool selectAll = false;
+    private string errorMessage = string.Empty;
+    public bool isLoading = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -87,9 +90,12 @@
 
     private async Task OnReturnCreated()
     {
+        isLoading = true;
+        createdReturn.Clear();
         foreach (var item in stockReturns)
         {
-            if(SelectAll){
+            if (SelectAll)
+            {
                 item.QuantityShuttle = item.QuantityToReturn;
             }
             createdReturn.Add(item.StockDeliveryId, item.QuantityShuttle);
@@ -101,11 +107,26 @@
                 createdReturn.Remove(item.Key);
             }
         }
-        if (createdReturn.Count <= 0)
-        {
+        if (createdReturn.Count <= 0){
+            isLoading = false;
+            errorMessage = "Molim postavite količinu za povrat više od nule barem jednom artiklu.";
+            await Application.Current!.MainPage!.DisplayAlert("Error", errorMessage, "OK");
             return;
         }
-        await _transactionService.CreateReturnAsync(createdReturn);
+        var result = await _transactionService.CreateReturnAsync(createdReturn);
+        if (result.IsSuccess)
+        {
+            var returns = result.Data;
+            var distinctTransactionIds = returns.Select(r => r.Delivery!.TransactionInfo!.TransactionId).Distinct().ToList();
+            await Application.Current!.MainPage!.DisplayAlert("Uspješno kreiran povrat", $"Povrat na transakciju broj: {distinctTransactionIds.First()} ", "OK");
+            Navigation.NavigateTo("/transactions");
+        }
+        else
+        {
+            errorMessage = result.ErrorMessage;
+            await Application.Current!.MainPage!.DisplayAlert("Error", result.ErrorMessage, "OK");
+        }
+        isLoading = false;
     }
 
     private Customer? SelectedCustomer

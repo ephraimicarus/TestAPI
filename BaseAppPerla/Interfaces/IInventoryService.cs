@@ -1,4 +1,5 @@
-﻿using BaseAppPerla.Models;
+﻿using BaseAppPerla.DTOs;
+using BaseAppPerla.Models;
 
 namespace BaseAppPerla.Interfaces
 {

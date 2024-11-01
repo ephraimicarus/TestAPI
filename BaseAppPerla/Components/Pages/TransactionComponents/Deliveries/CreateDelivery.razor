@@ -1,4 +1,5 @@
 ﻿@page "/createdelivery"
+@using BaseAppPerla.DTOs
 @using BaseAppPerla.Interfaces
 @using BaseAppPerla.Models
 @inject ICustomerService _customerService
@@ -26,13 +27,17 @@
                 <MudTd>@context.Item?.Description</MudTd>
                 <MudTd>@context.Quantity</MudTd>
                 <MudTd>
-                    <MudTextField T="int" @bind-Value="context.QuantityShuttle" />
+                    <MudTextField Disabled="isLoading" T="int" @bind-Value="context.QuantityShuttle" />
                 </MudTd>
             </RowTemplate>
         </MudTable>
     }
 
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnDeliveryCreated">Kreiraj isporuku</MudButton>
+    @if (isLoading)
+    {
+        <MudProgressCircular Indeterminate="true" />
+    }
 </MudForm>
 
 @code {
@@ -42,6 +47,8 @@
     private Customer? SelectedCustomer;
     private Dictionary<int, int> createdDelivery = new();
     private bool showInventoryTable = false;
+    private string errorMessage = string.Empty;
+    private bool isLoading = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -56,6 +63,8 @@
     }
     private async Task OnDeliveryCreated()
     {
+        isLoading = true;
+        createdDelivery.Clear();
         foreach(var item in inventoryItems)
         {
             createdDelivery.Add(item.InventoryId, item.QuantityShuttle);
@@ -69,9 +78,25 @@
         }
         if (createdDelivery.Count() <= 0)
         {
+            isLoading = false;
+            errorMessage = "Molim postavite količinu za isporuku više od nule barem jednom artiklu.";
+            await Application.Current!.MainPage!.DisplayAlert("Error", errorMessage, "OK");
             return;
         }
-        await _transactionService.CreateDeliveryAsync(createdDelivery);
+        var result= await _transactionService.CreateDeliveryAsync(createdDelivery);
+        if (result.IsSuccess)
+        {
+            var deliveries = result.Data;
+            var distinctTransactionIds = deliveries.Select(d => d.TransactionInfo?.TransactionId).Distinct().ToList();
+            await Application.Current!.MainPage!.DisplayAlert("Uspješno kreirano", $"Broj transakcije: {distinctTransactionIds.First()} ", "OK");
+            Navigation.NavigateTo("/transactions");
+        }
+        else
+        {
+            errorMessage = result.ErrorMessage;
+            await Application.Current!.MainPage!.DisplayAlert("Error", result.ErrorMessage, "OK");
+        }
+        isLoading = false;
     }
     private async Task ValueChanged(Customer customer)
     {

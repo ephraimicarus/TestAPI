@@ -2,7 +2,6 @@
 using BaseApi.Utility;
 using Microsoft.EntityFrameworkCore;
 using TestAPI.Data;
-using TestAPI.DTOs;
 using TestAPI.Models;
 
 namespace TestAPI.Services
@@ -39,7 +38,7 @@ namespace TestAPI.Services
                     inventoriesToUpdate.Add(inventory, item.Value);
             }
             if (validateInventoryValues.Min() < 0)
-                throw new InvalidOperationException("One or more inventory items have insufficient quantity.");
+                throw new InvalidOperationException("Jedan ili više artikla u ovoj isporuci nema dovoljno na stanju. Provjerite inventuru.");
             var transaction = await _transactionService.InitiateTransaction(TransactionCategory.Delivery.ToString());
             if (transaction == null)
             {
@@ -110,9 +109,6 @@ namespace TestAPI.Services
             await _context.SaveChangesAsync();
             return deliveryToUpdate!;
         }
-
-
-
         private void SetOverdueCustomerFlag(List<Customer> customers)
         {
             foreach (var customer in customers)

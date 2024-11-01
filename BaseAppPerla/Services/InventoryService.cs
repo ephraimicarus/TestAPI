@@ -1,4 +1,5 @@
-﻿using BaseAppPerla.Interfaces;
+﻿using BaseAppPerla.DTOs;
+using BaseAppPerla.Interfaces;
 using BaseAppPerla.Models;
 using Newtonsoft.Json;
 using System.Net.Http.Json;

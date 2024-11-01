@@ -1,11 +1,13 @@
-﻿using BaseAppPerla.Models;
+﻿using BaseAppPerla.DTOs;
+using BaseAppPerla.ExceptionHandling;
+using BaseAppPerla.Models;
 
 namespace BaseAppPerla.Interfaces
 {
     public interface ITransactionService
     {
-        Task<List<StockDelivery>> CreateDeliveryAsync(Dictionary<int, int> inventories);
-        Task<List<StockReturn>> CreateReturnAsync(Dictionary<int, int> stockReturns);
+        Task<ServiceResult<List<StockDelivery>>> CreateDeliveryAsync(Dictionary<int, int> inventories);
+        Task<ServiceResult<List<StockReturn>>> CreateReturnAsync(Dictionary<int, int> stockReturns);
         Task<List<TransactionModel>> GetAllTransactions();
         Task<List<StockDelivery>> GetAllDeliveries();
         Task<List<StockReturn>> GetAllReturns();
