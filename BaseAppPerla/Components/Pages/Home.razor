@@ -3,6 +3,7 @@
 @using BaseAppPerla.Interfaces
 @using BaseAppPerla.Models
 @inject ICustomerDueService _customerDueService;
+@inject NavigationManager Navigation
 
 <h1>Naslovna</h1>
 
@@ -20,7 +21,11 @@
         {
             @if (showCustomerTable)
             {
-                <MudTable Items="customersDueListPaginated" RowsPerPage="5" Hover="true" Striped="true" Outlined="true">
+                <MudTable Items="customersDueListPaginated"
+                          RowsPerPage="rowsPerPage" 
+                          Hover="true" 
+                          Striped="true" 
+                          Outlined="true">
                     <HeaderContent>
                         <MudTh>Ime</MudTh>
                         <MudTh>Oib</MudTh>
@@ -32,6 +37,7 @@
                         <MudTd DataLabel="Oib">@context.Oib</MudTd>
                         <MudTd DataLabel="Phone">@context.Phone</MudTd>
                         <MudTd DataLabel="Email">@context.Email</MudTd>
+                        <MudTd Style="background-color: red" DataLabel=""></MudTd>
                         <MudTd DataLabel="">
                             <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCustomerDetails(context)">Detalji</MudButton>
                         </MudTd>
@@ -55,13 +61,38 @@
         }
     </MudCardContent>
 </MudCard>
-
+<MudCard Style="margin-top: 4rem">
+    <MudCardContent>
+        <MudText Typo="Typo.h6">Brze transakcije</MudText>
+        <MudGrid>
+            <MudItem xs="6" sm="3">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="()=>NavigationQuickButton(navigationPaths[0])">Kreiraj isporuku</MudButton>
+            </MudItem>
+            <MudItem xs="6" sm="3">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => NavigationQuickButton(navigationPaths[1])">Kreiraj povrat</MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudCardContent>
+</MudCard>
 @if (showCustomerInfo)
 {
     <div style="margin-top: 1rem;">
         <CustomerDueInfo oib="@SelectedCustomer!.Oib"></CustomerDueInfo>
     </div>
 }
+<MudCard Style="margin-top: 4rem">
+    <MudCardContent>
+        <MudText Typo="Typo.h6">Brzo upravljanje</MudText>
+        <MudGrid>
+            <MudItem xs="6" sm="3">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => NavigationQuickButton(navigationPaths[2])">Dodaj klijenta</MudButton>
+            </MudItem>
+            <MudItem xs="6" sm="3">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => NavigationQuickButton(navigationPaths[3])">Dodaj artikl</MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudCardContent>
+</MudCard>
 
 @code {
     private List<Customer> customersDueList = new();
@@ -70,6 +101,7 @@
 
 
     private bool showCustomerInfo = false;
+    private string[] navigationPaths = { "/createdelivery", "/createreturn", "/addcustomer", "/additem" };
     private bool showCustomerTable = true;
     private bool isLoading = true;
 
@@ -111,5 +143,9 @@
     {
         showCustomerInfo = false;
         showCustomerTable = true;
+    }
+    private void NavigationQuickButton(string path)
+    {
+        Navigation.NavigateTo(path);
     }
 }
