@@ -5,7 +5,7 @@ namespace BaseAppPerla.Interfaces
 {
     public interface ICustomerService
     {
-        Task<Customer> CreateCustomerAsync(Customer customer);
+        Task<ServiceResult<Customer>> CreateCustomerAsync(Customer customer);
         Task<Customer> UpdateCustomerAsync(Customer customer);
         Task<ServiceResult<Customer>> DeleteCustomerAsync(int customerId);
         Task<Customer> GetCustomerByOibAsync(string oib);

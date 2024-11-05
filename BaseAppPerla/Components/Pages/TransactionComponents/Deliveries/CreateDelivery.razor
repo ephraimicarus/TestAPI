@@ -12,7 +12,7 @@
         @foreach (var customer in customers)
         {
             <MudSelectItem Value="customer">@customer.Name</MudSelectItem>
-        }   
+        }
     </MudSelect>
 
     @if (showInventoryTable)
@@ -33,7 +33,7 @@
         </MudTable>
     }
 
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnDeliveryCreated">Kreiraj isporuku</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnCreateDelivery">Kreiraj isporuku</MudButton>
     @if (isLoading)
     {
         <MudProgressCircular Indeterminate="true" />
@@ -61,17 +61,17 @@
         inventoryItems = await _inventoryService.GetInventoriesAsync(customer.CustomerId);
         showInventoryTable = true;
     }
-    private async Task OnDeliveryCreated()
+    private async Task OnCreateDelivery()
     {
         isLoading = true;
         createdDelivery.Clear();
-        foreach(var item in inventoryItems)
+        foreach (var item in inventoryItems)
         {
             createdDelivery.Add(item.InventoryId, item.QuantityShuttle);
         }
-        foreach(var item in createdDelivery)
+        foreach (var item in createdDelivery)
         {
-            if(item.Value <=0)
+            if (item.Value <= 0)
             {
                 createdDelivery.Remove(item.Key);
             }
@@ -83,7 +83,7 @@
             await Application.Current!.MainPage!.DisplayAlert("Error", errorMessage, "OK");
             return;
         }
-        var result= await _transactionService.CreateDeliveryAsync(createdDelivery);
+        var result = await _transactionService.CreateDeliveryAsync(createdDelivery);
         if (result.IsSuccess)
         {
             var deliveries = result.Data;

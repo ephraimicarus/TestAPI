@@ -3,8 +3,9 @@
 @using BaseAppPerla.Interfaces
 @using BaseAppPerla.Models
 @inject ICustomerService _customerService
+@inject NavigationManager Navigation
 
-<h3>Mušterije</h3>
+<h3>Dodaj klijenta</h3>
 
 <MudCard>
     <MudCardContent>
@@ -17,7 +18,8 @@
         </MudForm>
     </MudCardContent>
     <MudCardActions>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="CreateCustomer">Add Customer</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="CreateCustomer">Dodaj</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Surface" OnClick="NavigateToCustomers">Natrag</MudButton>
     </MudCardActions>
 </MudCard>
 
@@ -26,7 +28,17 @@
 
     private async Task CreateCustomer()
     {
-        await _customerService.CreateCustomerAsync(customer);
+        var result = await _customerService.CreateCustomerAsync(customer);
+        if (result.IsSuccess)
+        {
+            customer = result.Data!;
+            await Application.Current!.MainPage!.DisplayAlert("Uspješno dodan klijent", $"Ime: {customer.Name} \nOib: {customer.Oib}", "OK");
+            NavigateToCustomers();
+        }
         customer = new Customer();
+    }
+    private void NavigateToCustomers()
+    {
+        Navigation.NavigateTo("/customers", true);
     }
 }

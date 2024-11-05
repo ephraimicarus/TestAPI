@@ -1,4 +1,5 @@
-﻿using BaseAppPerla.Interfaces;
+﻿using BaseAppPerla.ExceptionHandling;
+using BaseAppPerla.Interfaces;
 using BaseAppPerla.Models;
 using Newtonsoft.Json;
 using System.Net.Http.Json;
@@ -16,7 +17,7 @@ namespace BaseAppPerla.Services
             _httpClient.BaseAddress = new Uri("https://localhost:44398/api");
         }
 
-        public async Task<Item> CreateItemAsync(Item item)
+        public async Task<ServiceResult<Item>> CreateItemAsync(Item item)
         {
             try
             {
@@ -27,16 +28,18 @@ namespace BaseAppPerla.Services
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     var createdItem = JsonConvert.DeserializeObject<Item>(content);
-                    return createdItem!;
+                    return new ServiceResult<Item> { Data = createdItem!, ErrorMessage = string.Empty };
                 }
                 else
                 {
-                    return null;
+                    var errorResponse = await response.Content.ReadAsStringAsync();
+                    var errorMessage = JsonConvert.DeserializeObject<ErrorResponse>(errorResponse)?.Message;
+                    return new ServiceResult<Item> { ErrorMessage = errorMessage! };
                 }
             }
             catch (Exception ex)
             {
-                return null;
+                return new ServiceResult<Item>{ ErrorMessage = ex.Message };
             }
         }
 

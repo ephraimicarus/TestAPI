@@ -4,15 +4,15 @@
 @inject ITransactionService _transactionService
 @inject NavigationManager Navigation
 
-<h3>Delivery Information</h3>
+<h3>Informacija isporuke</h3>
 
 @if (isLoading)
 {
-    <p>Loading...</p>
+    <p>Učitavanje...</p>
 }
 else if (deliveries == null)
 {
-    <p>Delivery not found.</p>
+    <p>Isporuka nije pronađena.</p>
 }
 else
 {
@@ -21,8 +21,8 @@ else
             <MudTable Items="deliveries">
                 <HeaderContent>
                     <MudTh>Artikl</MudTh>
-                    <MudTh>Količina isporučena</MudTh>
-                    <MudTh>Količina za vratit</MudTh>
+                    <MudTh>Isporučeno</MudTh>
+                    <MudTh>Potrebno vratiti</MudTh>
                     <MudTh>Rok vraćanja</MudTh>
                 </HeaderContent>
                 <RowTemplate>

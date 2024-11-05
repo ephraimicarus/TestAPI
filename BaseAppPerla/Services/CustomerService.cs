@@ -15,19 +15,28 @@ namespace BaseAppPerla.Services
             _httpClient.BaseAddress = new Uri("https://localhost:44398/api");
         }
 
-        public async Task<Customer> CreateCustomerAsync(Customer customer)
+        public async Task<ServiceResult<Customer>> CreateCustomerAsync(Customer customer)
         {
-            var response = await _httpClient.PostAsJsonAsync($"{_httpClient.BaseAddress}/Customer", customer);
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var responseContent = await response.Content.ReadAsStringAsync();
-                var createdCustomer = JsonConvert.DeserializeObject<Customer>(responseContent);
-                return createdCustomer!;
+                var response = await _httpClient.PostAsJsonAsync($"{_httpClient.BaseAddress}/Customer", customer);
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    var createdCustomer = JsonConvert.DeserializeObject<Customer>(responseContent);
+                    return new ServiceResult<Customer> { Data = createdCustomer!, ErrorMessage = string.Empty };
+                }
+                else
+                {
+                    var errorResponse = await response.Content.ReadAsStringAsync();
+                    var errorMessage = JsonConvert.DeserializeObject<ErrorResponse>(errorResponse)?.Message;
+                    return new ServiceResult<Customer> { ErrorMessage = errorMessage! };
+                }
             }
-            else
+            catch(Exception ex)
             {
-                return null;
-            }
+                return new ServiceResult<Customer> { ErrorMessage = ex.Message };
+            }            
         }
 
         public async Task<ServiceResult<Customer>> DeleteCustomerAsync(int customerId)
