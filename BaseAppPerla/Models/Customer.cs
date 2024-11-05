@@ -9,5 +9,6 @@
         public string? Email { get; set; }
         public string? Phone { get; set; }
         public bool Overdue { get; set; } = false;
+        public int DaysOverdue { get; set; } = 0;
     }
 }

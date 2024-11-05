@@ -10,5 +10,6 @@ namespace BaseApi.Interfaces
         Task<Customer> ResetCustomerDueStatus(int customerId);
         Task<bool> IsCustomerDue(Customer customer);
         Task<List<StockDelivery>> GetCustomerDueItems(string oib);
+        Task<int> GetCustomerDaysDue(int customerId);
     }
 }

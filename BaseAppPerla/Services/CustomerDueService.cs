@@ -56,6 +56,28 @@ namespace BaseAppPerla.Services
                 return null;
             }
         }
+        
+        public async Task<int> GetCustomerDaysDue(int customerId)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_httpClient.BaseAddress}/CustomerDue/days?customerId={customerId}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var customers = JsonConvert.DeserializeObject<int>(content);
+                    return customers!;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+        }
 
         public async Task<Customer> ResetCustomerDueStatus(int customerId)
         {

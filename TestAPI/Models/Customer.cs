@@ -21,5 +21,6 @@ namespace TestAPI.Models
         [StringLength(20)]
         public string? Phone { get; set; }
         public bool Overdue { get; set; } = false;
+        public int DaysOverdue { get; set; } = 0;
     }
 }

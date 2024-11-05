@@ -42,5 +42,22 @@ namespace BaseApi.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        
+        [HttpGet("days")]
+        public async Task<ActionResult<int>> GetCustomerDaysDue([FromQuery] int customerId)
+        {
+            try
+            {
+                var customerDueItems = await _customerDueService.GetCustomerDaysDue(customerId);
+                return Ok(customerDueItems);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return BadRequest(ex.Message);
+            }
+        }
+
+
     }
 }

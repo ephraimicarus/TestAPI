@@ -13,6 +13,18 @@
         else
         {
             <MudCard>
+                <MudCard>
+                    <MudCardHeader>
+                        <MudText Typo="Typo.h6">@customer.Name</MudText>
+                    </MudCardHeader>
+                    <MudCardHeader>
+                        <MudText Typo="Typo.h6">@customer.Phone</MudText>
+                    </MudCardHeader>
+                    <MudCardHeader>
+                        <MudText Typo="Typo.h6">@customer.Email</MudText>
+                    </MudCardHeader>
+                </MudCard>
+                
                 @foreach (var transactionId in customerDueDeliveries)
                 {
                     <MudCardHeader>
@@ -20,7 +32,7 @@
                     </MudCardHeader>
                     <MudCardHeader>
                         <MudText Typo="Typo.h6">Rok vraćanja: @transactionId.First().TransactionInfo!.DateDue.ToString("dd-MM-yyyy")</MudText>
-                    </MudCardHeader>
+                    </MudCardHeader>                    
                     <MudTable Items="@transactionId" Hover="true" Striped="true" Outlined="true">
                         <HeaderContent>
                             <MudTh>Artikl</MudTh>
@@ -45,13 +57,13 @@
 
 @code {
     [Parameter]
-    public string? oib { get; set; }
+    public Customer customer { get; set; }
     private List<List<StockDelivery>> customerDueDeliveries = new();
     private bool isLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
-        var stockDeliveries = await _customerDueService.GetCustomerDueItems(oib!);
+        var stockDeliveries = await _customerDueService.GetCustomerDueItems(customer.Oib!);
         if (stockDeliveries != null)
         {
             isLoading = false;

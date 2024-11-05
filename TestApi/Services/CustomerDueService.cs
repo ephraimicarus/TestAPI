@@ -25,6 +25,9 @@ namespace BaseApi.Services
                     c.Overdue = true;
                     await _customerService.UpdateCustomerAsync(c);
                 }
+                var days = await GetCustomerDaysDue(c.CustomerId);
+                c.DaysOverdue = days;
+                await _customerService.UpdateCustomerAsync(c);
             }
             return customers;
         } 
@@ -40,7 +43,7 @@ namespace BaseApi.Services
         public async Task<Customer> SetCustomersAsDue()
         {
             var overdueInfo = await _context.Deliveries
-                .Where(d => d.QuantityToReturn != 0 && d.TransactionInfo!.DateDue.AddDays(-6) > d.TransactionInfo.TransactionDate)
+                .Where(d => d.QuantityToReturn != 0 && d.TransactionInfo!.DateDue.Day >= DateTime.Now.Day)
                 .Select(d => new
                 {
                     d.Inventory!.Customer!.CustomerId,
@@ -92,6 +95,24 @@ namespace BaseApi.Services
                 .Include(d => d.TransactionInfo)
                 .ToListAsync();
             return customerDeliveries;
+        }
+
+        public async Task<int> GetCustomerDaysDue(int customerId)
+        {
+            List<int> daysOverdue = new();
+            var today = DateTime.Now.Day;
+            var customerDeliveries = await _context.Deliveries
+                .Where(d => d.Inventory!.Customer!.CustomerId == customerId
+                && d.TransactionInfo!.DateDue.Day <= DateTime.Now.Day
+                && d.QuantityToReturn != 0)
+                .Include(d => d.TransactionInfo)
+                .ToListAsync();
+            foreach (var item in customerDeliveries)
+            {
+                int delay =  today - item.TransactionInfo!.DateDue.Day;
+                daysOverdue.Add(delay);
+            }
+            return daysOverdue.Max();
         }
     }
 }
