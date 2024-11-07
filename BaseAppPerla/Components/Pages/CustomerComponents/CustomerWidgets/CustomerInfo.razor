@@ -12,6 +12,7 @@
             @if (isLoading)
             {
                 <div>Dohvaćam podatke...</div>
+                <MudProgressCircular Indeterminate="true" />
             }
             else
             {
@@ -43,6 +44,7 @@
         </MudCardContent>
         @if (isLoadingDelete)
         {
+            <div>Brišem...</div>
             <MudProgressCircular Indeterminate="true" />
         }
     </MudCard>
