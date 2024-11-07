@@ -130,7 +130,7 @@ namespace BaseAppPerla.Services
             }
         }
 
-        public async Task<Customer> UpdateCustomerAsync(Customer customer)
+        public async Task<ServiceResult<Customer>> UpdateCustomerAsync(Customer customer)
         {
             try
             {
@@ -139,16 +139,18 @@ namespace BaseAppPerla.Services
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     var customerToUpdate = JsonConvert.DeserializeObject<Customer>(content);
-                    return customerToUpdate!;
+                    return new ServiceResult<Customer> { Data = customerToUpdate!, ErrorMessage = string.Empty };
                 }
                 else
                 {
-                    return null;
+                    var errorResponse = await response.Content.ReadAsStringAsync();
+                    var errorMessage = JsonConvert.DeserializeObject<ErrorResponse>(errorResponse)?.Message;
+                    return new ServiceResult<Customer> { ErrorMessage = errorMessage! };
                 }
             }
             catch (Exception ex)
             {
-                return null;
+                return new ServiceResult<Customer> { ErrorMessage = ex.Message };
             }
         }
     }
