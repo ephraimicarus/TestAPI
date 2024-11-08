@@ -1,6 +1,7 @@
 ﻿@using BaseAppPerla.Interfaces
 @using BaseAppPerla.Models
 @inject ICustomerService _customerService
+@inject NavigationManager Navigation
 
 <MudCard>
     <MudCardContent>
@@ -16,11 +17,18 @@
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="UpdateCustomer">Ažuriraj</MudButton>
     </MudCardActions>
 </MudCard>
+@if(isLoading)
+{
+    <div>Ažuriranje u tijeku...</div>
+    <MudProgressCircular Indeterminate="true" />
+}
 
 @code {
     [Parameter]
     public int CustomerId { get; set; }
     private Customer customer = new();
+    private bool isLoading = false;
+    private string errorMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -29,6 +37,24 @@
 
     private async Task UpdateCustomer()
     {
-        await _customerService.UpdateCustomerAsync(customer);
+        isLoading = true;
+        var result = await _customerService.UpdateCustomerAsync(customer);
+        if (result.IsSuccess)
+        {
+            customer = result.Data!;
+            await Application.Current!.MainPage!.DisplayAlert("Uspješno ažuriran klijent", $"Ime: {customer.Name} \nOib: {customer.Oib}", "OK");
+            isLoading = false;
+            NavigateToCustomers();
+        }
+        else
+        {
+            errorMessage = result.ErrorMessage;
+            await Application.Current!.MainPage!.DisplayAlert("Error", result.ErrorMessage, "OK");
+        }
+        isLoading = false;
+    }
+    private void NavigateToCustomers()
+    {
+        Navigation.NavigateTo("/customers", true);
     }
 }

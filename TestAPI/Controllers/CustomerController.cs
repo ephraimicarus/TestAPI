@@ -84,7 +84,11 @@ namespace TestAPI.Controllers
 				var updatedCustomer = await _customerService.UpdateCustomerAsync(customer);
 				return Ok(updatedCustomer);
 			}
-			catch (Exception ex)
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { ex.Message });
+            }
+            catch (Exception ex)
 			{
 				Console.WriteLine(ex);
 				return BadRequest(ex.Message);

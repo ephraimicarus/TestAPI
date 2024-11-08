@@ -1,4 +1,5 @@
 ﻿using BaseApi.Interfaces;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using TestAPI.Data;
 using TestAPI.Models;
@@ -52,22 +53,22 @@ namespace TestAPI.Services
             var deliveries = await _context.Deliveries
                 .Where(sd => sd.Inventory!.Customer!.CustomerId == customerId)
                 .ToListAsync();
-                foreach (var item in inventory)
+            foreach (var item in inventory)
+            {
+                if (item.Quantity == 0)
                 {
-                    if (item.Quantity == 0)
-                    {
-                        _context.Remove(item);
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException("Klijent ima isporuke sa navedenim artiklom. Prvo napravite povrat.");
-                    }
+                    _context.Remove(item);
                 }
-                _context.RemoveRange(returns);
-                _context.RemoveRange(deliveries);
-                _context.Remove(customerToDelete);
-                await _context.SaveChangesAsync();
-                return customerToDelete;
+                else
+                {
+                    throw new InvalidOperationException("Klijent ima isporuke sa navedenim artiklom. Prvo napravite povrat.");
+                }
+            }
+            _context.RemoveRange(returns);
+            _context.RemoveRange(deliveries);
+            _context.Remove(customerToDelete);
+            await _context.SaveChangesAsync();
+            return customerToDelete;
         }
         public async Task<List<Customer>> GetAllCustomersAsync() => await _context.Customers.ToListAsync();
 
@@ -94,9 +95,9 @@ namespace TestAPI.Services
 
                 return customerToUpdate;
             }
-            catch
+            catch (DbUpdateException ex)
             {
-                throw;
+                throw new InvalidOperationException($"A customer with the OIB {customer.Oib} already exists.", ex);
             }
         }
     }
