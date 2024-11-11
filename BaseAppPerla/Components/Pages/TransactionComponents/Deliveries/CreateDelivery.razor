@@ -33,11 +33,17 @@
         </MudTable>
     }
 
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnCreateDelivery">Kreiraj isporuku</MudButton>
-    @if (isLoading)
-    {
-        <MudProgressCircular Indeterminate="true" />
-    }
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnCreateDelivery">
+        @if (isLoading)
+        {
+            <MudProgressCircular Indeterminate="true" Color="Color.Secondary" />
+            <MudText> U TIJEKU.. </MudText>
+        }
+        else
+        {
+            <MudText> KREIRAJ ISPORUKU </MudText>
+        }
+    </MudButton>
 </MudForm>
 
 @code {

@@ -45,11 +45,17 @@
         </MudTable>
     }
 
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnReturnCreated">Kreiraj povrat</MudButton>
-    @if (isLoading)
-    {
-        <MudProgressCircular Indeterminate="true" />
-    }
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnReturnCreated">
+        @if (isLoading)
+        {
+            <MudProgressCircular Indeterminate="true" Color="Color.Secondary" />
+            <MudText> U TIJEKU.. </MudText>
+        }
+        else
+        {
+            <MudText> KREIRAJ POVRAT </MudText>
+        }
+    </MudButton>
 </MudForm>
 
 @code {
@@ -111,7 +117,8 @@
                 createdReturn.Remove(item.Key);
             }
         }
-        if (createdReturn.Count <= 0){
+        if (createdReturn.Count <= 0)
+        {
             isLoading = false;
             errorMessage = "Molim postavite količinu za povrat više od nule barem jednom artiklu.";
             await Application.Current!.MainPage!.DisplayAlert("Error", errorMessage, "OK");

@@ -14,14 +14,19 @@
         </MudForm>
     </MudCardContent>
     <MudCardActions>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="UpdateCustomer">Ažuriraj</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="UpdateCustomer">
+            @if (isLoading)
+            {
+                <MudProgressCircular Indeterminate="true" Color="Color.Secondary" />
+                <MudText> U TIJEKU.. </MudText>
+            }
+            else
+            {
+                <MudText> AŽURIRAJ </MudText>
+            }
+        </MudButton>
     </MudCardActions>
 </MudCard>
-@if(isLoading)
-{
-    <div>Ažuriranje u tijeku...</div>
-    <MudProgressCircular Indeterminate="true" />
-}
 
 @code {
     [Parameter]

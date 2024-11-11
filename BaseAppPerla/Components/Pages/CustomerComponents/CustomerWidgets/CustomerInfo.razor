@@ -26,7 +26,17 @@
                                        OnClick="ShowEditCustomer">Edit</MudButton>
                             <MudButton Variant="Variant.Outlined"
                                        Color="Color.Secondary"
-                                       OnClick="()=>DeleteCustomer(Customer.CustomerId)">Delete</MudButton>
+                                       OnClick="()=>DeleteCustomer(Customer.CustomerId)">
+                                @if (isLoadingDelete)
+                                {
+                                    <MudProgressCircular Indeterminate="true" Color="Color.Secondary" />
+                                    <MudText> U TIJEKU.. </MudText>
+                                }
+                                else
+                                {
+                                    <MudText> IZBRIŠI </MudText>
+                                }
+                            </MudButton>
                         </MudCardActions>
                     </MudCardHeader>
                     <MudTable Items="@customerInventories" Hover="true" Striped="true" Outlined="true">
@@ -42,11 +52,6 @@
                 </MudCard>
             }
         </MudCardContent>
-        @if (isLoadingDelete)
-        {
-            <div>Brišem...</div>
-            <MudProgressCircular Indeterminate="true" />
-        }
     </MudCard>
 }
 @if (showEditCustomer)

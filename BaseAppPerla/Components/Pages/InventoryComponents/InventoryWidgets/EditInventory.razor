@@ -2,6 +2,7 @@
 @using BaseAppPerla.Models
 @inject IItemService _itemService
 @inject IInventoryService _inventoryService
+@inject NavigationManager Navigation
 
 <MudCard>
     <MudCardContent>
@@ -12,7 +13,17 @@
         </MudForm>
     </MudCardContent>
     <MudCardActions>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="UpdateItem">Ažuriraj</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="UpdateItem">
+            @if (isLoading)
+            {
+                <MudProgressCircular Indeterminate="true" Color="Color.Secondary" />
+                <MudText> U TIJEKU.. </MudText>
+            }
+            else
+            {
+                <MudText> AŽURIRAJ </MudText>
+            }
+        </MudButton>
     </MudCardActions>
 </MudCard>
 
@@ -20,6 +31,7 @@
     [Parameter]
     public BaseInventory? BaseInventory { get; set; }
     private Item item = new();
+    private bool isLoading = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -28,7 +40,20 @@
 
     private async Task UpdateItem()
     {
-        await _itemService.UpdateItemAsync(item);
+        isLoading = true;
+        var result = await _itemService.UpdateItemAsync(item);
         await _inventoryService.UpdateBaseInventoryAsync(BaseInventory!);
+        if(result.IsSuccess)
+        {
+            item = result.Data!;
+            await Application.Current!.MainPage!.DisplayAlert("Uspješno ažuriran artikl", $"Opis: {item.Description}", "OK");
+            isLoading = false;
+            Navigation.NavigateTo("/inventory", true);
+        }
+        else
+        {
+            await Application.Current!.MainPage!.DisplayAlert("Greška", "Došlo je do greške prilikom ažuriranja artikla", "OK");
+            isLoading = false;
+        }
     }
 }

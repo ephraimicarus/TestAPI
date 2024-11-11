@@ -9,7 +9,7 @@
 
 <MudCard>
     <MudCardContent>
-        <MudForm>
+        <MudForm Disabled="isLoading">
             <MudTextField @bind-Value="customer.Name" Label="Ime i prezime/naziv firme" Required="true" />
             <MudTextField @bind-Value="customer.Oib" Label="Oib" Required="true" MaxLength="11" />
             <MudTextField @bind-Value="customer.Email" Label="Email" Required="false" />
@@ -18,21 +18,34 @@
         </MudForm>
     </MudCardContent>
     <MudCardActions>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="CreateCustomer">Dodaj</MudButton>
+        <MudButton Disabled="isLoading" Variant="Variant.Filled" Color="Color.Primary" OnClick="CreateCustomer">
+            @if(isLoading)
+            {
+                <MudProgressCircular Indeterminate="true" Color="Color.Secondary"/>
+                <MudText> U TIJEKU.. </MudText>
+            }
+            else
+            {
+                <MudText> DODAJ </MudText>
+            }
+        </MudButton>
         <MudButton Variant="Variant.Filled" Color="Color.Surface" OnClick="NavigateToCustomers">Natrag</MudButton>
     </MudCardActions>
 </MudCard>
 
 @code {
     private Customer customer = new();
+    private bool isLoading = false;
 
     private async Task CreateCustomer()
     {
+        isLoading = true;
         var result = await _customerService.CreateCustomerAsync(customer);
         if (result.IsSuccess)
         {
             customer = result.Data!;
             await Application.Current!.MainPage!.DisplayAlert("Uspješno dodan klijent", $"Ime: {customer.Name} \nOib: {customer.Oib}", "OK");
+            isLoading = false;
             NavigateToCustomers();
         }
         customer = new Customer();

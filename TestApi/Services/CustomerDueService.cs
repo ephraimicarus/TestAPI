@@ -17,25 +17,32 @@ namespace BaseApi.Services
             _customerService = customerService;
         }
         public async Task<List<Customer>> GetOverdueCustomers() {
-            var customers=  await _context.Customers.Where(c => c.Overdue == true).ToListAsync();
+            List<Customer> customerList = new();
+            var customers=  await _context.Customers.ToListAsync();
             foreach(var c in customers)
             {
                 if(await IsCustomerDue(c))
                 {
                     c.Overdue = true;
                     await _customerService.UpdateCustomerAsync(c);
+                    var days = await GetCustomerDaysDue(c.CustomerId);
+                    c.DaysOverdue = days;
+                    await _customerService.UpdateCustomerAsync(c);
+                    customerList.Add(c);
                 }
-                var days = await GetCustomerDaysDue(c.CustomerId);
-                c.DaysOverdue = days;
-                await _customerService.UpdateCustomerAsync(c);
+                else
+                {
+                    await ResetCustomerDueStatus(c.CustomerId);
+                }
             }
-            return customers;
+            return customerList;
         } 
 
         public async Task<Customer> ResetCustomerDueStatus(int customerId)
         {
             var customerToReset = await _context.Customers.SingleOrDefaultAsync(c => c.CustomerId == customerId);
             customerToReset!.Overdue = false;
+            customerToReset!.DaysOverdue = 0;
             await _customerService.UpdateCustomerAsync(customerToReset);
             return customerToReset;
         }
@@ -76,7 +83,7 @@ namespace BaseApi.Services
                 .ToListAsync();
             foreach (var c in customerDeliveries)
             {
-                if (c.QuantityToReturn != 0 && c.TransactionInfo!.DateDue < DateTime.Now)
+                if (c.QuantityToReturn != 0 && c.TransactionInfo!.DateDue.Day <= DateTime.Now.Day)
                 {
                     return true;
                 }

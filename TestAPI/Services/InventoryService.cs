@@ -101,7 +101,7 @@ namespace TestAPI.Services
                 throw new KeyNotFoundException($"Item with ID {itemId} not found.");
             var customerList = await _context.Customers.ToListAsync();
             if (customerList.Count == 0)
-                throw new KeyNotFoundException($"No customers found.");
+                return item;
             foreach (var customer in customerList)
             {
                 Inventory inventory = new()
