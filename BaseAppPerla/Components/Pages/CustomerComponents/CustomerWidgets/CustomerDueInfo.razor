@@ -41,9 +41,9 @@
                             <MudTh>Datum isporuke</MudTh>
                         </HeaderContent>
                         <RowTemplate>
-                            <MudTd>@context.Inventory!.Item!.Description</MudTd>
-                            <MudTd>@context.QuantityToReturn</MudTd>
-                            <MudTd>@context.TransactionInfo!.TransactionDate.ToString("dd-MM-yyyy")</MudTd>
+                            <MudTd DataLabel="Artikl">@context.Inventory!.Item!.Description</MudTd>
+                            <MudTd DataLabel="Količina">@context.QuantityToReturn</MudTd>
+                            <MudTd DataLabel="Datum Isporuke">@context.TransactionInfo!.TransactionDate.ToString("dd-MM-yyyy")</MudTd>
                         </RowTemplate>
                     </MudTable>
                 }

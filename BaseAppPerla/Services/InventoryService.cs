@@ -14,7 +14,7 @@ namespace BaseAppPerla.Services
         public InventoryService(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            _httpClient.BaseAddress = new Uri("https://localhost:44398/api");
+            _httpClient.BaseAddress = new Uri("https://praonaperla.azurewebsites.net/api");
         }
 
         public async Task<List<BaseInventory>> GetBaseInventoryAsync()

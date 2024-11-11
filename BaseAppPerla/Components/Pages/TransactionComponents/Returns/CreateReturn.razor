@@ -35,10 +35,10 @@
                 </MudTh>
             </HeaderContent>
             <RowTemplate>
-                <MudTd>@context.Inventory?.Item?.Description</MudTd>
-                <MudTd>@context.QuantityDelivered</MudTd>
-                <MudTd>@context.QuantityToReturn</MudTd>
-                <MudTd>
+                <MudTd DataLabel="Artikl">@context.Inventory?.Item?.Description</MudTd>
+                <MudTd DataLabel="Isporučeno">@context.QuantityDelivered</MudTd>
+                <MudTd DataLabel="Stanje kod klijenta">@context.QuantityToReturn</MudTd>
+                <MudTd DataLabel="Količina za povrat">
                     <MudTextField Disabled="@SelectAll" T="int" @bind-Value="context.QuantityShuttle" />
                 </MudTd>
             </RowTemplate>

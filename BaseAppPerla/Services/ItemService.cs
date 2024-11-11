@@ -14,7 +14,7 @@ namespace BaseAppPerla.Services
         public ItemService(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            _httpClient.BaseAddress = new Uri("https://localhost:44398/api");
+            _httpClient.BaseAddress = new Uri("https://praonaperla.azurewebsites.net/api");
         }
 
         public async Task<ServiceResult<Item>> CreateItemAsync(Item item)

@@ -27,10 +27,10 @@ else
                     <MudTh>Rok vraćanja</MudTh>
                 </HeaderContent>
                 <RowTemplate>
-                    <MudTd>@context.Inventory?.Item?.Description</MudTd>
-                    <MudTd>@context.QuantityDelivered</MudTd>
-                    <MudTd>@context.QuantityToReturn</MudTd>
-                    <MudTd>@context.TransactionInfo?.DateDue</MudTd>
+                    <MudTd DataLabel="Artikl">@context.Inventory?.Item?.Description</MudTd>
+                    <MudTd DataLabel="Isporučeno">@context.QuantityDelivered</MudTd>
+                    <MudTd DataLabel="Potrebno vratiti">@context.QuantityToReturn</MudTd>
+                    <MudTd DataLabel="Rok vraćanja">@context.TransactionInfo?.DateDue</MudTd>
                 </RowTemplate>
             </MudTable>
         </MudCardContent>

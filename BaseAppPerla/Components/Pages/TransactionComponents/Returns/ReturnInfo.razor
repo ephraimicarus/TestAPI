@@ -23,9 +23,9 @@ else
                     <MudTh>Datum</MudTh>
                 </HeaderContent>
                 <RowTemplate>
-                    <MudTd>@context.Delivery?.Inventory?.Item?.Description</MudTd>
-                    <MudTd>@context.QuantityReturned</MudTd>
-                    <MudTd>@context.TransactionDate</MudTd>
+                    <MudTd DataLabel="Artikl">@context.Delivery?.Inventory?.Item?.Description</MudTd>
+                    <MudTd DataLabel="Količina vraćena">@context.QuantityReturned</MudTd>
+                    <MudTd DataLabel="Datum">@context.TransactionDate</MudTd>
                 </RowTemplate>
             </MudTable>
         </MudCardContent>

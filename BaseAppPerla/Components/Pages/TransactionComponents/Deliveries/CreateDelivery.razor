@@ -24,9 +24,9 @@
                 <MudTh>Količina za isporuku</MudTh>
             </HeaderContent>
             <RowTemplate>
-                <MudTd>@context.Item?.Description</MudTd>
-                <MudTd>@context.Quantity</MudTd>
-                <MudTd>
+                <MudTd DataLabel="Artikl">@context.Item?.Description</MudTd>
+                <MudTd DataLabel="Stanje kod klijenta">@context.Quantity</MudTd>
+                <MudTd DataLabel="Količina za isporuku">
                     <MudTextField Disabled="isLoading" T="int" @bind-Value="context.QuantityShuttle" />
                 </MudTd>
             </RowTemplate>
