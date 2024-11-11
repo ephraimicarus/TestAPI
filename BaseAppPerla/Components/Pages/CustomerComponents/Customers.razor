@@ -5,18 +5,19 @@
 @inject ICustomerService _customerService
 @inject NavigationManager Navigation
 
-
 <MudCard>
     <MudCardContent>
         @if (showCustomerTable)
         {
             <h3 class="mb-3">Klijenti</h3>
+            <MudTextField @bind-Value="SearchString" Placeholder="Pretraži po imenu ili OIB" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" />
+            <br />
         }
         else
         {
             <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ResetCustomerInfo()" Style="width: 160px; margin-top: 4px;">Prikaži mušterije</MudButton>
         }
-        @if (customersList.Count > 0)
+        @if (filteredCustomersList.Count() > 0)
         {
             @if (showCustomerTable)
             {
@@ -67,7 +68,6 @@
     <MudButton Disabled="showCustomerInfo" Variant="Variant.Filled" Color="Color.Primary" OnClick="NavigateToAddCustomer" Style="width: 160px; margin-top: 4px;">Dodaj klijenta</MudButton>
 </div>
 
-
 @code {
     private List<Customer> customersList = new();
     private List<Customer> customersListPaginated = new();
@@ -78,6 +78,7 @@
     private bool isLoading = true;
 
     private int totalPages, rowsPerPage = 5, currentPage = 1;
+    private string _searchString = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -92,13 +93,13 @@
 
     private void CalculateTotalPages()
     {
-        totalPages = (int)Math.Ceiling(customersList.Count / (double)rowsPerPage);
+        totalPages = (int)Math.Ceiling(filteredCustomersList.Count() / (double)rowsPerPage);
     }
 
     private void UpdatePagedCustomers()
     {
         int startIndex = (currentPage - 1) * rowsPerPage;
-        customersListPaginated = customersList.Skip(startIndex).Take(rowsPerPage).ToList();
+        customersListPaginated = filteredCustomersList.Skip(startIndex).Take(rowsPerPage).ToList();
     }
 
     private void HandlePageChange(int newPage)
@@ -113,13 +114,34 @@
         showCustomerTable = false;
         showCustomerInfo = true;
     }
+
     private void ResetCustomerInfo()
     {
         showCustomerInfo = false;
         showCustomerTable = true;
     }
+
     private void NavigateToAddCustomer()
     {
         Navigation.NavigateTo("/addcustomer");
+    }
+
+    private IEnumerable<Customer> filteredCustomersList => customersList
+        .Where(c => string.IsNullOrWhiteSpace(SearchString)
+        || c.Name?.Contains(SearchString, StringComparison.OrdinalIgnoreCase) == true
+        || c.Oib?.Contains(SearchString, StringComparison.OrdinalIgnoreCase) == true);
+
+    private string SearchString
+    {
+        get => _searchString;
+        set
+        {
+            if (_searchString != value)
+            {
+                _searchString = value;
+                CalculateTotalPages();
+                UpdatePagedCustomers();
+            }
+        }
     }
 }
