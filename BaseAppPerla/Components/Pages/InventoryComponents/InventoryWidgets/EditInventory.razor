@@ -9,7 +9,6 @@
         <MudForm>
             <MudTextField @bind-Value="item.Description" Label="Naziv artikla" Required="true" />
             <MudTextField @bind-Value="BaseInventory!.QuantityStored" Label="Stanje" Required="true" />
-            <MudTextField @bind-Value="BaseInventory!.QuantityRented" Label="Izdano" Required="true" />
         </MudForm>
     </MudCardContent>
     <MudCardActions>
@@ -41,12 +40,12 @@
     private async Task UpdateItem()
     {
         isLoading = true;
-        var result = await _itemService.UpdateItemAsync(item);
-        await _inventoryService.UpdateBaseInventoryAsync(BaseInventory!);
-        if(result.IsSuccess)
+        var resultItem = await _itemService.UpdateItemAsync(item);
+        var resultBaseInventory = await _inventoryService.UpdateBaseInventoryAsync(BaseInventory!);
+        if(resultItem.IsSuccess)
         {
-            item = result.Data!;
-            await Application.Current!.MainPage!.DisplayAlert("Uspješno ažuriran artikl", $"Opis: {item.Description}", "OK");
+            item = resultItem.Data!;
+            await Application.Current!.MainPage!.DisplayAlert("Uspješno ažuriran artikl", $"Opis: {item.Description}\nKoličina: {resultBaseInventory.Data.QuantityStored}", "OK");
             isLoading = false;
             Navigation.NavigateTo("/inventory", true);
         }

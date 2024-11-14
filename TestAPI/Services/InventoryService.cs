@@ -142,8 +142,7 @@ namespace TestAPI.Services
             {
                 throw new KeyNotFoundException($"Base inventory item with ID  not found.");
             }
-            baseInventory.QuantityStored = inventory.QuantityStored;
-            baseInventory.QuantityRented = inventory.QuantityRented;    
+            baseInventory.QuantityStored = inventory.QuantityStored; 
             await _context.SaveChangesAsync();
             return baseInventory;
         }

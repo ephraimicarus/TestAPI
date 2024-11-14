@@ -1,4 +1,5 @@
 ﻿using BaseAppPerla.DTOs;
+using BaseAppPerla.ExceptionHandling;
 using BaseAppPerla.Interfaces;
 using BaseAppPerla.Models;
 using Newtonsoft.Json;
@@ -61,7 +62,7 @@ namespace BaseAppPerla.Services
             }
         }
 
-        public async Task<BaseInventory> UpdateBaseInventoryAsync(BaseInventory inventory)
+        public async Task<ServiceResult<BaseInventory>> UpdateBaseInventoryAsync(BaseInventory inventory)
         {
             try
             {
@@ -72,16 +73,18 @@ namespace BaseAppPerla.Services
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     var baseInventory = JsonConvert.DeserializeObject<BaseInventory>(content);
-                    return baseInventory!;
+                    return new ServiceResult<BaseInventory> { Data = baseInventory!, ErrorMessage = string.Empty };
                 }
                 else
                 {
-                    return null;
+                    var errorResponse = await response.Content.ReadAsStringAsync();
+                    var errorMessage = JsonConvert.DeserializeObject<ErrorResponse>(errorResponse)?.Message;
+                    return new ServiceResult<BaseInventory> { ErrorMessage = errorMessage! };
                 }
             }
             catch (Exception ex)
             {
-                return null;
+                return new ServiceResult<BaseInventory> { ErrorMessage = ex.Message };
             }
         }
 
