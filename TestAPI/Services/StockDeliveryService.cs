@@ -44,6 +44,7 @@ namespace TestAPI.Services
             {
                 throw new InvalidOperationException("Failed to initiate transaction.");
             }
+            //TODO: Validation class
             foreach (var item in inventoriesToUpdate)
             {
                 StockDelivery transactionCreated = new()
