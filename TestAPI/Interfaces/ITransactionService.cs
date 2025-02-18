@@ -6,7 +6,7 @@ namespace BaseApi.Interfaces
 	public interface ITransactionService
 	{
 		Task<TransactionModel> InitiateTransaction(string description);
-		Task<StockJournal> AddStockJournalRecord(string category, int transactionId);
+		Task<StockJournal> AddStockJournalRecord(string category, int transactionId);//TODO: remove
 		Task<List<TransactionModel>> GetAllTransactions();
 		Task<bool> IsTransactionActive(int transactionId);
         Task<TransactionModel> SetTransactionNotActive(int transactionId);

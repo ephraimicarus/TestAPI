@@ -20,7 +20,7 @@ namespace TestAPI.Services
             _transactionService = transactionService;
         }
         public async Task<List<StockDelivery>> CreateDeliveryAsync(Dictionary<int, int> inventories)
-        {
+        {//TODO: Refactor as in notes
             List<int> validateInventoryValues = new();
             List<StockDelivery> deliveryList = new();
             Dictionary<Inventory, int> inventoriesToUpdate = new();
@@ -37,14 +37,13 @@ namespace TestAPI.Services
                 if (inventory != null)
                     inventoriesToUpdate.Add(inventory, item.Value);
             }
-            if (validateInventoryValues.Min() < 0)
+            if (validateInventoryValues.Min() < 0)            //TODO: Validation class for 1 or more inventories based on number of deliveries in transaction
                 throw new InvalidOperationException("Jedan ili više artikla u ovoj isporuci nema dovoljno na stanju. Provjerite inventuru.");
-            var transaction = await _transactionService.InitiateTransaction(TransactionCategory.Delivery.ToString());
+            var transaction = await _transactionService.InitiateTransaction(TransactionCategory.Delivery.ToString());//TODO: UpdateInventory to recieve (TransactionCategory)
             if (transaction == null)
             {
                 throw new InvalidOperationException("Failed to initiate transaction.");
             }
-            //TODO: Validation class
             foreach (var item in inventoriesToUpdate)
             {
                 StockDelivery transactionCreated = new()
@@ -57,13 +56,13 @@ namespace TestAPI.Services
                 _context.Add(transactionCreated);
                 var updatedInventory = await _inventoryService.UpdateInventory(TransactionCategory.Delivery.ToString(),
                     transactionCreated.Inventory.InventoryId,
-                    transactionCreated.QuantityDelivered);
+                    transactionCreated.QuantityDelivered);//TODO: UpdateInventory to recieve (TransactionCategory, Inventory)
                 if (updatedInventory == null)
                 {
                     throw new InvalidOperationException($"Failed to update inventory with ID {transactionCreated.Inventory.InventoryId}.");
                 }
                 var stockJournalRecordAdded = await _transactionService.AddStockJournalRecord(TransactionCategory.Delivery.ToString(),
-                    transactionCreated.StockDeliveryId);
+                    transactionCreated.StockDeliveryId);//TODO: remove
                 if (stockJournalRecordAdded == null)
                 {
                     throw new InvalidOperationException($"Failed to add stock journal record for delivery ID {transactionCreated.StockDeliveryId}.");

@@ -5,7 +5,8 @@ using TestAPI.Data;
 using TestAPI.Models;
 
 namespace BaseApi.Services
-{
+{//TODO: GENERAL - All exceptions should be handled at the exact point of occurence
+ //TODO: GENERAL - Exception handling mechanism should be consistent throughout the application
     public class StockReturnService : IStockReturnService
     {
         private readonly ApplicationContext _context;
@@ -26,7 +27,7 @@ namespace BaseApi.Services
             _customerDueService = customerDueService;
         }
         public async Task<List<StockReturn>> CreateReturnAsync(Dictionary<int, int> stockReturns)
-        {
+        {//TODO: Refactor and validate as in CreateDeliveryAsync
             bool isCustomerDue = false;
             List<StockReturn> stockReturnList = new();
             List<int> validateInventoryValues = new();
@@ -61,13 +62,13 @@ namespace BaseApi.Services
                     item!.Delivery!.Inventory!.InventoryId,
                     item.QuantityReturned);
                 await _transactionService.AddStockJournalRecord(TransactionCategory.Return.ToString(),
-                    item.StockReturnId);
+                    item.StockReturnId);//TODO: remove
                 await _stockDeliveryService.UpdateDeliveryAsync(item.Delivery.StockDeliveryId, item.QuantityReturned);
                 if (await _customerDueService.IsCustomerDue(item.Delivery.Inventory.Customer!))
                     isCustomerDue = true;               
             }
             var cus = stockReturnList[0].Delivery!.Inventory!.Customer;
-            if (isCustomerDue)
+            if (isCustomerDue)//TODO: Refactor and replan customer due status
                 await _customerDueService.SetACustomerAsDue(cus!);
             else
                 await _customerDueService.ResetCustomerDueStatus(cus!.CustomerId);

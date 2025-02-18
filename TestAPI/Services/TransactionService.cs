@@ -16,7 +16,7 @@ namespace BaseApi.Services
         }
 
         public async Task<StockJournal> AddStockJournalRecord(string category, int transactionId)
-        {
+        {//TODO: remove
             StockJournal stockJournal = new StockJournal()
             {
                 Category = category,

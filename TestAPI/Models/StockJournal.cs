@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace TestAPI.Models
 {
 	public class StockJournal
-	{
+	{//TODO: remove
 		[Key]
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 		public int StockJournalId { get; set; }
