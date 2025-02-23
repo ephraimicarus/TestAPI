@@ -14,9 +14,10 @@ namespace BaseAppPerla.Services
         public TransactionService(HttpClient httpClient)
         {
             _httpClient = httpClient;
+            //_httpClient.BaseAddress = new Uri("https://praonaperla.azurewebsites.net/api");
             _httpClient.BaseAddress = new Uri("https://praonaperla.azurewebsites.net/api");
         }
-        public async Task<ServiceResult<List<StockDelivery>>> CreateDeliveryAsync(Dictionary<int, int> inventories)
+        public async Task<ServiceResult<List<StockDelivery>>> CreateDeliveryAsync(List<InventoryDto> inventories)
         {
             try
             {

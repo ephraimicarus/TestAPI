@@ -51,7 +51,7 @@
     private List<Customer> customers = new List<Customer>();
     private List<InventoryDto> inventoryItems = new();
     private Customer? SelectedCustomer;
-    private Dictionary<int, int> createdDelivery = new();
+    private List<InventoryDto> createdDelivery = new();
     private bool showInventoryTable = false;
     private string errorMessage = string.Empty;
     private bool isLoading = false;
@@ -73,13 +73,13 @@
         createdDelivery.Clear();
         foreach (var item in inventoryItems)
         {
-            createdDelivery.Add(item.InventoryId, item.QuantityShuttle);
+            createdDelivery.Add(item);
         }
         foreach (var item in createdDelivery)
         {
-            if (item.Value <= 0)
+            if (item.QuantityShuttle <= 0)
             {
-                createdDelivery.Remove(item.Key);
+                createdDelivery.Remove(item);
             }
         }
         if (createdDelivery.Count() <= 0)

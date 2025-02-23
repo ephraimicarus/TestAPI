@@ -6,7 +6,7 @@ namespace BaseAppPerla.Interfaces
 {
     public interface ITransactionService
     {
-        Task<ServiceResult<List<StockDelivery>>> CreateDeliveryAsync(Dictionary<int, int> inventories);
+        Task<ServiceResult<List<StockDelivery>>> CreateDeliveryAsync(List<InventoryDto> inventories);
         Task<ServiceResult<List<StockReturn>>> CreateReturnAsync(Dictionary<int, int> stockReturns);
         Task<List<TransactionModel>> GetAllTransactions();
         Task<List<StockDelivery>> GetAllDeliveries();
