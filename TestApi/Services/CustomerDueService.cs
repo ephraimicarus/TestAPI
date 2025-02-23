@@ -83,7 +83,7 @@ namespace BaseApi.Services
                 .ToListAsync();
             foreach (var c in customerDeliveries)
             {
-                if (c.QuantityToReturn != 0 && c.TransactionInfo!.DateDue.Day <= DateTime.Now.Day)
+                if (c.QuantityToReturn != 0 && c.TransactionInfo!.DateDue <= DateTime.Today)
                 {
                     return true;
                 }
