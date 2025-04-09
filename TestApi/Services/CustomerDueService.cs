@@ -95,7 +95,7 @@ namespace BaseApi.Services
         {
             var customerDeliveries = await _context.Deliveries
                 .Where(d => d.Inventory!.Customer!.Oib == oib
-                && d.TransactionInfo!.DateDue.Day <= DateTime.Now.Day
+                && d.TransactionInfo!.DateDue <= DateTime.Now
                 && d.QuantityToReturn != 0)
                 .Include(d => d.Inventory!.Item)
                 .Include(d => d.Inventory!.Customer)
@@ -107,17 +107,17 @@ namespace BaseApi.Services
         public async Task<int> GetCustomerDaysDue(int customerId)
         {
             List<int> daysOverdue = new();
-            var today = DateTime.Now.Day;
+            var today = DateTime.Now;
             var customerDeliveries = await _context.Deliveries
                 .Where(d => d.Inventory!.Customer!.CustomerId == customerId
-                && d.TransactionInfo!.DateDue.Day <= DateTime.Now.Day
+                && d.TransactionInfo!.DateDue <= DateTime.Now
                 && d.QuantityToReturn != 0)
                 .Include(d => d.TransactionInfo)
                 .ToListAsync();
             foreach (var item in customerDeliveries)
             {
-                int delay =  today - item.TransactionInfo!.DateDue.Day;
-                daysOverdue.Add(delay);
+                var delay =  today - item.TransactionInfo!.DateDue;
+                daysOverdue.Add(delay.Days);
             }
             return daysOverdue.Max();
         }
